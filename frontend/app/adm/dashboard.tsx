@@ -386,4 +386,31 @@ const styles = StyleSheet.create({
     color: '#999',
     textAlign: 'center',
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#666',
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#D32F2F',
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  retryButton: {
+    backgroundColor: '#8B4513',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 15,
+  },
 });
