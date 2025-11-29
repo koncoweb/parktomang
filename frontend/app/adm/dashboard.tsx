@@ -12,6 +12,7 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '../../contexts/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect } from 'react';
+import SettingsPage from '../../components/admin/SettingsPage';
 
 type AdminPage = 'overview' | 'settings' | 'pages' | 'users';
 
