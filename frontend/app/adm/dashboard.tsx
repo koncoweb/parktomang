@@ -13,6 +13,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect } from 'react';
 import SettingsPage from '../../components/admin/SettingsPage';
+import PagesManagement from '../../components/admin/PagesManagement';
 
 type AdminPage = 'overview' | 'settings' | 'pages' | 'users';
 
