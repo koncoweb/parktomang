@@ -20,8 +20,7 @@ Aplikasi hybrid mobile-web untuk Paroki Santa Maria Bunda Karmel Tomang, Jakarta
   - Kegiatan MBK Akan Datang
   - Kontak & Informasi
 - ✅ **Admin Panel** - Login system dengan authentication
-  - Email: `joni@email.com`
-  - Password: `joni2#Marjoni`
+  - 
 - ✅ **Cross-Platform** - Berjalan di iOS, Android, dan Web
 - ✅ **PWA Ready** - Bisa di-install sebagai Progressive Web App
 - ✅ **Modern UI** - Desain modern dengan color scheme coklat/orange
