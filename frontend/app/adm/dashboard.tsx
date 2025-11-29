@@ -130,9 +130,7 @@ export default function AdminDashboard() {
           <View style={styles.contentSection}>
             <Text style={styles.pageTitle}>Kelola Halaman</Text>
             <Text style={styles.pageSubtitle}>Buat dan edit halaman aplikasi</Text>
-            <View style={styles.card}>
-              <Text style={styles.placeholderText}>Page management coming soon...</Text>
-            </View>
+            <PagesManagement />
           </View>
         );
       
