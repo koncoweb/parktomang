@@ -46,15 +46,9 @@ export default function AdminDashboard() {
     { id: 'users' as AdminPage, icon: 'people', label: 'Kelola User', badge: profile?.role === 'superadmin' ? null : 'Admin Only' },
   ];
 
-  // Show loading state
+  // Redirect to login if not authenticated
   if (!user) {
-    return (
-      <SafeAreaView style={styles.container} edges={['top']}>
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading...</Text>
-        </View>
-      </SafeAreaView>
-    );
+    return <Redirect href="/adm" />;
   }
 
   // Show error if no profile
