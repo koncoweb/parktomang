@@ -29,9 +29,21 @@ export const loginUser = async (email: string, password: string) => {
     const user = userCredential.user;
     
     // Get user profile from Firestore
-    const userDoc = await getDoc(doc(db, 'users', user.uid));
+    let userDoc = await getDoc(doc(db, 'users', user.uid));
+    
+    // If profile doesn't exist, create it (for superadmin first login)
     if (!userDoc.exists()) {
-      throw new Error('User profile not found');
+      const newProfile: UserProfile = {
+        uid: user.uid,
+        email: user.email!,
+        displayName: email === SUPERADMIN_EMAIL ? 'Super Admin' : user.displayName || 'Admin User',
+        role: email === SUPERADMIN_EMAIL ? 'superadmin' : 'admin',
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      };
+      
+      await setDoc(doc(db, 'users', user.uid), newProfile);
+      userDoc = await getDoc(doc(db, 'users', user.uid));
     }
     
     return {
