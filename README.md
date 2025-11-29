@@ -4,8 +4,8 @@ Aplikasi hybrid mobile-web untuk Paroki Santa Maria Bunda Karmel Tomang, Jakarta
 
 ![Platform](https://img.shields.io/badge/Platform-iOS%20|%20Android%20|%20Web-blue)
 ![Framework](https://img.shields.io/badge/Framework-Expo-000020?logo=expo)
-![Backend](https://img.shields.io/badge/Backend-FastAPI-009688?logo=fastapi)
-![Database](https://img.shields.io/badge/Database-MongoDB-47A248?logo=mongodb)
+![Backend](https://img.shields.io/badge/Backend-Firebase-FFCA28?logo=firebase)
+![Database](https://img.shields.io/badge/Database-Firestore-FFCA28?logo=firebase)
 
 ## ✨ Fitur Utama
 
