@@ -95,10 +95,7 @@ export default function AdminDashboard() {
           <View style={styles.contentSection}>
             <Text style={styles.pageTitle}>Settings Umum</Text>
             <Text style={styles.pageSubtitle}>Kelola pengaturan aplikasi</Text>
-            {/* Settings form will be here */}
-            <View style={styles.card}>
-              <Text style={styles.placeholderText}>Settings form coming soon...</Text>
-            </View>
+            <SettingsPage />
           </View>
         );
       
