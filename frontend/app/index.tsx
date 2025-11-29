@@ -68,6 +68,15 @@ export default function Index() {
   const router = useRouter();
   const [activeSlide, setActiveSlide] = useState(0);
   const flatListRef = useRef<FlatList>(null);
+  const { width: windowWidth } = useWindowDimensions();
+  
+  // Calculate number of columns based on current window width
+  const numColumns = windowWidth >= 1024 ? 5 : windowWidth >= 768 ? 4 : 3;
+  
+  // Calculate item width dynamically
+  const marginPercent = 1;
+  const itemWidthPercent = (100 / numColumns) - (marginPercent * 2);
+  const itemWidth = `${itemWidthPercent}%`;
 
   // Auto-play slider
   useEffect(() => {
