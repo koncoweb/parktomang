@@ -283,7 +283,6 @@ const styles = StyleSheet.create({
     marginHorizontal: -4,
   },
   menuItem: {
-    width: ITEM_WIDTH,
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 12,
