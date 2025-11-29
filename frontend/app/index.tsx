@@ -157,7 +157,7 @@ export default function Index() {
             {MENU_ITEMS.map((item) => (
               <TouchableOpacity
                 key={item.id}
-                style={styles.menuItem}
+                style={[styles.menuItem, { width: itemWidth }]}
                 onPress={() => handleMenuPress(item.route)}
                 activeOpacity={0.7}
               >
