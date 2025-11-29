@@ -95,7 +95,7 @@ export default function Index() {
   };
 
   const renderSlideItem = ({ item }: { item: typeof DUMMY_SLIDERS[0] }) => (
-    <View style={[styles.slide, { backgroundColor: item.color }]}>
+    <View style={[styles.slide, { backgroundColor: item.color, width: windowWidth - 32 }]}>
       <Text style={styles.slideText}>{item.text}</Text>
     </View>
   );
