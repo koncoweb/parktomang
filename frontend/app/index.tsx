@@ -16,14 +16,28 @@ import { Ionicons } from '@expo/vector-icons';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-// Calculate number of columns based on screen width
-const getNumColumns = (width: number) => {
-  if (width >= 1024) return 5; // Desktop
-  if (width >= 768) return 4;  // Tablet
-  return 3; // Mobile
+// Calculate number of columns and item width based on screen width
+const getLayoutConfig = (width: number) => {
+  let numColumns = 3; // Default mobile
+  let itemGap = 8;
+  
+  if (width >= 1024) {
+    numColumns = 5; // Desktop
+    itemGap = 12;
+  } else if (width >= 768) {
+    numColumns = 4; // Tablet
+    itemGap = 10;
+  }
+  
+  // Calculate item width: (screen width - horizontal padding - gaps) / columns
+  const horizontalPadding = 24; // 12px each side
+  const totalGapWidth = (numColumns - 1) * itemGap;
+  const itemWidth = (width - horizontalPadding - totalGapWidth) / numColumns;
+  
+  return { numColumns, itemWidth, itemGap };
 };
 
-const NUM_COLUMNS = getNumColumns(SCREEN_WIDTH);
+const LAYOUT_CONFIG = getLayoutConfig(SCREEN_WIDTH);
 
 // Dummy slider images (base64 placeholders - small colored rectangles)
 const DUMMY_SLIDERS = [
