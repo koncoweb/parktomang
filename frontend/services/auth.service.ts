@@ -25,14 +25,18 @@ const SUPERADMIN_PASSWORD = 'joni2#Marjoni';
 // Login
 export const loginUser = async (email: string, password: string) => {
   try {
+    console.log('[Auth] Attempting login for:', email);
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
+    console.log('[Auth] Login successful, UID:', user.uid);
     
     // Get user profile from Firestore
     let userDoc = await getDoc(doc(db, 'users', user.uid));
+    console.log('[Auth] User profile exists:', userDoc.exists());
     
     // If profile doesn't exist, create it (for superadmin first login)
     if (!userDoc.exists()) {
+      console.log('[Auth] Creating new profile for:', email);
       const newProfile: UserProfile = {
         uid: user.uid,
         email: user.email!,
@@ -42,15 +46,25 @@ export const loginUser = async (email: string, password: string) => {
         updatedAt: serverTimestamp()
       };
       
-      await setDoc(doc(db, 'users', user.uid), newProfile);
-      userDoc = await getDoc(doc(db, 'users', user.uid));
+      try {
+        await setDoc(doc(db, 'users', user.uid), newProfile);
+        console.log('[Auth] Profile created successfully');
+        userDoc = await getDoc(doc(db, 'users', user.uid));
+      } catch (firestoreError: any) {
+        console.error('[Auth] Error creating profile:', firestoreError);
+        throw new Error(`Failed to create profile: ${firestoreError.message}`);
+      }
     }
+    
+    const profileData = userDoc.data() as UserProfile;
+    console.log('[Auth] Profile data:', profileData);
     
     return {
       user,
-      profile: userDoc.data() as UserProfile
+      profile: profileData
     };
   } catch (error: any) {
+    console.error('[Auth] Login error:', error);
     throw new Error(error.message);
   }
 };
