@@ -154,7 +154,7 @@ export default function Index() {
                 activeOpacity={0.7}
               >
                 <View style={styles.menuIconContainer}>
-                  <Ionicons name={item.icon as any} size={32} color="#8B4513" />
+                  <Ionicons name={item.icon as any} size={28} color="#8B4513" />
                 </View>
                 <Text style={styles.menuTitle}>{item.title}</Text>
               </TouchableOpacity>
