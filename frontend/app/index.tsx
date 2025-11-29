@@ -19,22 +19,22 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 // Calculate number of columns and item width based on screen width
 const getLayoutConfig = (width: number) => {
   let numColumns = 3; // Default mobile
-  let itemGap = 8;
   
   if (width >= 1024) {
     numColumns = 5; // Desktop
-    itemGap = 12;
   } else if (width >= 768) {
     numColumns = 4; // Tablet
-    itemGap = 10;
   }
   
-  // Calculate item width: (screen width - horizontal padding - gaps) / columns
-  const horizontalPadding = 24; // 12px each side
-  const totalGapWidth = (numColumns - 1) * itemGap;
-  const itemWidth = (width - horizontalPadding - totalGapWidth) / numColumns;
+  // Calculate item width with margin consideration
+  // Each item has marginHorizontal: 4 (8px total per item)
+  // Grid has marginHorizontal: -4 (to compensate)
+  const horizontalPadding = 24; // 12px each side from menuSection
+  const marginPerItem = 8; // 4px each side
+  const totalMargins = numColumns * marginPerItem;
+  const itemWidth = (width - horizontalPadding - totalMargins) / numColumns;
   
-  return { numColumns, itemWidth, itemGap };
+  return { numColumns, itemWidth };
 };
 
 const LAYOUT_CONFIG = getLayoutConfig(SCREEN_WIDTH);
