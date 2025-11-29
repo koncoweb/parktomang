@@ -295,7 +295,7 @@ const styles = StyleSheet.create({
   menuGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: LAYOUT_CONFIG.itemGap,
+    marginHorizontal: -4,
   },
   menuItem: {
     width: LAYOUT_CONFIG.itemWidth,
@@ -305,6 +305,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: 120,
+    marginBottom: 8,
+    marginHorizontal: 4,
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
