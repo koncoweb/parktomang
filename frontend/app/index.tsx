@@ -217,18 +217,14 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
-  webSliderWrapper: {
-    height: 220,
-    position: 'relative',
-  },
-  pagerView: {
+  flatList: {
     height: 220,
   },
   slide: {
     height: 220,
+    width: SCREEN_WIDTH - 32,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 16,
   },
   slideText: {
     fontSize: 24,
