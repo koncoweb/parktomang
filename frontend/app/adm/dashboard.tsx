@@ -25,10 +25,14 @@ export default function AdminDashboard() {
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
 
   useEffect(() => {
+    console.log('[Dashboard] User:', user?.email);
+    console.log('[Dashboard] Profile:', profile);
+    
     if (!user) {
+      console.log('[Dashboard] No user, redirecting to login');
       router.replace('/adm');
     }
-  }, [user]);
+  }, [user, profile]);
 
   const handleLogout = async () => {
     await logout();
