@@ -131,8 +131,8 @@ export default function Index() {
               setActiveSlide(index);
             }}
             getItemLayout={(data, index) => ({
-              length: SCREEN_WIDTH - 32,
-              offset: (SCREEN_WIDTH - 32) * index,
+              length: windowWidth - 32,
+              offset: (windowWidth - 32) * index,
               index,
             })}
             style={styles.flatList}
