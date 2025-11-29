@@ -83,6 +83,35 @@ export default function PagesManagement() {
     setShowModal(true);
   };
 
+  const handleAddVideo = () => {
+    const newVideo = {
+      id: Date.now().toString(),
+      title: '',
+      videoId: '',
+      thumbnailUrl: '',
+    };
+    setFormData({
+      ...formData,
+      youtubeVideos: [...(formData.youtubeVideos || []), newVideo],
+    });
+  };
+
+  const handleRemoveVideo = (videoId: string) => {
+    setFormData({
+      ...formData,
+      youtubeVideos: formData.youtubeVideos?.filter((v) => v.id !== videoId) || [],
+    });
+  };
+
+  const handleVideoChange = (videoId: string, field: string, value: string) => {
+    setFormData({
+      ...formData,
+      youtubeVideos: formData.youtubeVideos?.map((v) =>
+        v.id === videoId ? { ...v, [field]: value } : v
+      ) || [],
+    });
+  };
+
   const handleEdit = (page: PageContent) => {
     setEditingPage(page);
     setFormData({
