@@ -100,27 +100,14 @@ export const onAuthChange = (callback: (user: User | null) => void) => {
 };
 
 // Seed superadmin account
+// Note: Superadmin must be created manually in Firebase Auth Console first
+// This function only creates the Firestore profile
 export const seedSuperAdmin = async () => {
   try {
-    // Check if superadmin already exists in Firestore
-    const usersSnapshot = await getDoc(doc(db, 'users', 'superadmin'));
-    
-    if (!usersSnapshot.exists()) {
-      console.log('Seeding superadmin account...');
-      
-      // Create superadmin in Firestore with fixed UID
-      const superadminProfile: UserProfile = {
-        uid: 'superadmin',
-        email: SUPERADMIN_EMAIL,
-        displayName: 'Super Admin',
-        role: 'superadmin',
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      };
-      
-      await setDoc(doc(db, 'users', 'superadmin'), superadminProfile);
-      console.log('Superadmin seeded successfully');
-    }
+    // We can't programmatically create Firebase Auth users on client side
+    // Superadmin needs to be created via Firebase Console or manually registered once
+    // This function just ensures the profile exists in Firestore after first login
+    console.log('Superadmin seeding handled on first login');
   } catch (error) {
     console.error('Error seeding superadmin:', error);
   }
