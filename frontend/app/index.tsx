@@ -16,6 +16,15 @@ import { Ionicons } from '@expo/vector-icons';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
+// Calculate number of columns based on screen width
+const getNumColumns = (width: number) => {
+  if (width >= 1024) return 5; // Desktop
+  if (width >= 768) return 4;  // Tablet
+  return 3; // Mobile
+};
+
+const NUM_COLUMNS = getNumColumns(SCREEN_WIDTH);
+
 // Dummy slider images (base64 placeholders - small colored rectangles)
 const DUMMY_SLIDERS = [
   { id: '1', color: '#8B4513', text: 'Selamat Datang di Paroki Tomang' },
