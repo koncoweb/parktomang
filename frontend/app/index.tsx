@@ -230,7 +230,6 @@ const styles = StyleSheet.create({
   },
   slide: {
     height: 220,
-    width: SCREEN_WIDTH - 32,
     justifyContent: 'center',
     alignItems: 'center',
   },
