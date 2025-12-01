@@ -9,10 +9,12 @@ import {
   Image,
   Linking,
   Platform,
+  useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import RenderHTML from 'react-native-render-html';
 import {
   getPageBySlug,
   getChildPages,
@@ -26,6 +28,7 @@ export default function PageDetail() {
   const [children, setChildren] = useState<PageContent[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeVideoIndex, setActiveVideoIndex] = useState(0);
+  const { width: windowWidth } = useWindowDimensions();
 
   useEffect(() => {
     const load = async () => {
@@ -174,6 +177,31 @@ export default function PageDetail() {
               <Text style={styles.subtitle}>Belum ada sub halaman</Text>
               <Text style={styles.description}>
                 Tambahkan sub halaman baru melalui menu Kelola Halaman di admin.
+              </Text>
+            </View>
+          )
+        ) : page.type === 'static' ? (
+          page.richTextContent ? (
+            <View style={styles.staticContentSection}>
+              <View style={styles.staticCard}>
+                <RenderHTML
+                  contentWidth={windowWidth - 32}
+                  source={{ html: page.richTextContent }}
+                  baseStyle={styles.staticHtmlBase}
+                />
+              </View>
+            </View>
+          ) : (
+            <View style={styles.placeholderContainer}>
+              <Ionicons
+                name="document-text-outline"
+                size={64}
+                color="#D2691E"
+              />
+              <Text style={styles.subtitle}>Belum ada konten</Text>
+              <Text style={styles.description}>
+                Tambahkan konten untuk halaman ini melalui editor di menu
+                Kelola Halaman.
               </Text>
             </View>
           )
@@ -521,5 +549,25 @@ const styles = StyleSheet.create({
   },
   webviewPlayer: {
     flex: 1,
+  },
+  staticContentSection: {
+    paddingHorizontal: 16,
+    paddingBottom: 32,
+  },
+  staticCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  staticHtmlBase: {
+    fontSize: 14,
+    lineHeight: 22,
+    color: '#5D4037',
   },
 });

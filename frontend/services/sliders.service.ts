@@ -76,11 +76,17 @@ export const createSlider = async (
 ) => {
   try {
     const ref = doc(collection(db, SLIDERS_COLLECTION));
-    const payload = {
+    const payload: Record<string, any> = {
       ...data,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     };
+    // Hapus field undefined supaya tidak error di Firestore
+    Object.keys(payload).forEach((key) => {
+      if (payload[key] === undefined) {
+        delete payload[key];
+      }
+    });
     await setDoc(ref, payload);
     return ref.id;
   } catch (error) {
@@ -96,8 +102,17 @@ export const updateSlider = async (
 ) => {
   try {
     const ref = doc(db, SLIDERS_COLLECTION, id);
+
+    // Bersihkan nilai undefined sebelum dikirim ke Firestore
+    const cleanData: Record<string, any> = {};
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== undefined) {
+        cleanData[key] = value;
+      }
+    });
+
     await updateDoc(ref, {
-      ...data,
+      ...cleanData,
       updatedAt: serverTimestamp(),
     });
   } catch (error) {

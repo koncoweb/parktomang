@@ -322,6 +322,167 @@ export default function SliderManagement() {
                 />
               </View>
 
+              {/* Tujuan klik slider */}
+              <View style={styles.formGroup}>
+                <Text style={styles.label}>Tujuan saat slider diklik</Text>
+                <View style={styles.statusRow}>
+                  <TouchableOpacity
+                    style={[
+                      styles.statusChip,
+                      (form.targetType || 'none') === 'none' &&
+                        styles.statusChipActive,
+                    ]}
+                    onPress={() =>
+                      setForm((prev) => ({
+                        ...prev,
+                        targetType: 'none',
+                        targetPageSlug: undefined,
+                        targetUrl: undefined,
+                      }))
+                    }
+                  >
+                    <Text
+                      style={[
+                        styles.statusChipText,
+                        (form.targetType || 'none') === 'none' &&
+                          styles.statusChipTextActive,
+                      ]}
+                    >
+                      Tidak ada aksi
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[
+                      styles.statusChip,
+                      form.targetType === 'page' && styles.statusChipActive,
+                    ]}
+                    onPress={() =>
+                      setForm((prev) => ({
+                        ...prev,
+                        targetType: 'page',
+                        targetUrl: undefined,
+                      }))
+                    }
+                  >
+                    <Text
+                      style={[
+                        styles.statusChipText,
+                        form.targetType === 'page' && styles.statusChipTextActive,
+                      ]}
+                    >
+                      Halaman aplikasi
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[
+                      styles.statusChip,
+                      form.targetType === 'url' && styles.statusChipActive,
+                    ]}
+                    onPress={() =>
+                      setForm((prev) => ({
+                        ...prev,
+                        targetType: 'url',
+                        targetPageSlug: undefined,
+                      }))
+                    }
+                  >
+                    <Text
+                      style={[
+                        styles.statusChipText,
+                        form.targetType === 'url' && styles.statusChipTextActive,
+                      ]}
+                    >
+                      URL / Tautan
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+
+                {form.targetType === 'page' && (
+                  <View style={{ marginTop: 10 }}>
+                    <Text style={styles.helperText}>
+                      Pilih halaman aplikasi yang akan dibuka ketika slider
+                      diklik.
+                    </Text>
+                    <View style={styles.pageSelectList}>
+                      <ScrollView style={{ maxHeight: 160 }}>
+                        {pages.map((page) => {
+                          const isSelected =
+                            form.targetPageSlug === page.slug ||
+                            (!form.targetPageSlug &&
+                              form.targetType === 'page' &&
+                              editing?.targetPageSlug === page.slug);
+                          return (
+                            <TouchableOpacity
+                              key={page.id}
+                              style={[
+                                styles.pageSelectItem,
+                                isSelected && styles.pageSelectItemActive,
+                              ]}
+                              onPress={() =>
+                                setForm((prev) => ({
+                                  ...prev,
+                                  targetPageSlug: page.slug,
+                                }))
+                              }
+                            >
+                              <View style={styles.pageSelectIcon}>
+                                <Ionicons
+                                  name={page.icon as any}
+                                  size={18}
+                                  color={isSelected ? '#8B4513' : '#666'}
+                                />
+                              </View>
+                              <View style={{ flex: 1 }}>
+                                <Text
+                                  style={[
+                                    styles.pageSelectTitle,
+                                    isSelected && styles.pageSelectTitleActive,
+                                  ]}
+                                  numberOfLines={1}
+                                >
+                                  {page.title}
+                                </Text>
+                                <Text style={styles.pageSelectSlug}>
+                                  /pages/{page.slug}
+                                </Text>
+                              </View>
+                            </TouchableOpacity>
+                          );
+                        })}
+                        {pages.length === 0 && (
+                          <Text style={styles.helperText}>
+                            Belum ada halaman aktif. Tambahkan di menu
+                            &quot;Kelola Halaman&quot;.
+                          </Text>
+                        )}
+                      </ScrollView>
+                    </View>
+                  </View>
+                )}
+
+                {form.targetType === 'url' && (
+                  <View style={{ marginTop: 10 }}>
+                    <TextInput
+                      style={styles.input}
+                      value={form.targetUrl || ''}
+                      onChangeText={(text) =>
+                        setForm((prev) => ({
+                          ...prev,
+                          targetUrl: text,
+                        }))
+                      }
+                      placeholder="Contoh: https://paroki.or.id atau /pages/misa"
+                      autoCapitalize="none"
+                    />
+                    <Text style={styles.helperText}>
+                      Bisa URL internal (mis: /pages/misa) atau URL eksternal
+                      penuh (mis: https://paroki.or.id). Tautan akan dibuka di
+                      tampilan web fullscreen tanpa keluar dari aplikasi.
+                    </Text>
+                  </View>
+                )}
+              </View>
+
               <View style={styles.formGroup}>
                 <Text style={styles.label}>Icon</Text>
                 <View style={styles.iconPreviewRow}>
@@ -766,5 +927,45 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#fff',
     fontWeight: '600',
+  },
+  pageSelectList: {
+    marginTop: 6,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    borderRadius: 8,
+    backgroundColor: '#FAFAFA',
+    paddingHorizontal: 4,
+    paddingVertical: 4,
+  },
+  pageSelectItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 6,
+    paddingHorizontal: 6,
+    borderRadius: 6,
+  },
+  pageSelectItemActive: {
+    backgroundColor: '#FFF5E0',
+  },
+  pageSelectIcon: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8,
+  },
+  pageSelectTitle: {
+    fontSize: 13,
+    color: '#555',
+    fontWeight: '500',
+  },
+  pageSelectTitleActive: {
+    color: '#8B4513',
+    fontWeight: '700',
+  },
+  pageSelectSlug: {
+    fontSize: 11,
+    color: '#999',
   },
 });

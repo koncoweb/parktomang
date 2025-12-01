@@ -117,6 +117,20 @@ export default function Index() {
     router.push(route);
   };
 
+  const handleSliderPress = (item: SliderItem) => {
+    if (item.targetType === 'page' && item.targetPageSlug) {
+      router.push(`/pages/${item.targetPageSlug}`);
+      return;
+    }
+
+    if (item.targetType === 'url' && item.targetUrl) {
+      // Buka URL apa saja (internal / eksternal) di layar webview fullscreen
+      const encodedUrl = encodeURIComponent(item.targetUrl);
+      const encodedTitle = encodeURIComponent(item.title || 'Tautan');
+      router.push(`/slider-webview?url=${encodedUrl}&title=${encodedTitle}`);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView
@@ -174,7 +188,11 @@ export default function Index() {
               const imageUri = hasImage ? (item as any).imageBase64 : undefined;
 
               return (
-                <View style={styles.infoSlideCard}>
+                <TouchableOpacity
+                  style={styles.infoSlideCard}
+                  activeOpacity={0.8}
+                  onPress={() => handleSliderPress(item as SliderItem)}
+                >
                   {hasImage ? (
                     <Image
                       source={{ uri: imageUri }}
@@ -210,7 +228,7 @@ export default function Index() {
                       </Text>
                     )}
                   </View>
-                </View>
+                </TouchableOpacity>
               );
             }}
           />
