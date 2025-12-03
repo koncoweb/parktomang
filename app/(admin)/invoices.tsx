@@ -32,6 +32,8 @@ export default function InvoicesScreen() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [verificationNote, setVerificationNote] = useState('');
+  const [isStatusModalVisible, setIsStatusModalVisible] = useState(false);
+  const [statusInvoice, setStatusInvoice] = useState<Invoice | null>(null);
 
   useEffect(() => {
     loadInvoices();
@@ -110,6 +112,48 @@ export default function InvoicesScreen() {
     setIsModalVisible(true);
   };
 
+  const openStatusModal = (invoice: Invoice) => {
+    setStatusInvoice(invoice);
+    setIsStatusModalVisible(true);
+  };
+
+  const handleStatusChange = async (newStatus: 'verified' | 'pending') => {
+    if (!user || !statusInvoice) return;
+
+    try {
+      const updateData: any = {
+        status: newStatus,
+      };
+
+      if (newStatus === 'verified') {
+        updateData.verified_by = user.id;
+        updateData.verified_at = new Date().toISOString();
+      } else if (newStatus === 'pending') {
+        updateData.verified_by = null;
+        updateData.verified_at = null;
+      }
+
+      const { error } = await supabase
+        .from('invoices')
+        .update(updateData)
+        .eq('id', statusInvoice.id);
+
+      if (error) throw error;
+      
+      await loadInvoices();
+      setIsStatusModalVisible(false);
+      setStatusInvoice(null);
+      
+      Alert.alert(
+        'Berhasil',
+        `Status tagihan berhasil diubah menjadi ${newStatus === 'verified' ? 'Lunas' : 'Belum Lunas'}`
+      );
+    } catch (error) {
+      console.error('Error updating invoice status:', error);
+      Alert.alert('Error', 'Gagal mengubah status tagihan');
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'verified':
@@ -164,61 +208,76 @@ export default function InvoicesScreen() {
         </View>
 
         {invoices.map((invoice) => (
-          <Card key={invoice.id} style={styles.invoiceCard}>
-            <View style={styles.invoiceInfo}>
-              <View style={styles.invoiceHeader}>
-                <Text style={[ios16Typography.headline, styles.customerName]}>
-                  {invoice.customers?.name || 'N/A'}
-                </Text>
-                <View
-                  style={[
-                    styles.statusBadge,
-                    { backgroundColor: getStatusColor(invoice.status) + '20' },
-                  ]}
-                >
-                  <Text style={[ios16Typography.caption, { color: getStatusColor(invoice.status) }]}>
-                    {invoice.status.toUpperCase()}
+          <Pressable
+            key={invoice.id}
+            onPress={() => openStatusModal(invoice)}
+            style={({ pressed }) => [
+              styles.invoiceCardPressable,
+              pressed && styles.invoiceCardPressed,
+            ]}
+          >
+            <Card style={styles.invoiceCard}>
+              <View style={styles.invoiceInfo}>
+                <View style={styles.invoiceHeader}>
+                  <Text style={[ios16Typography.headline, styles.customerName]}>
+                    {invoice.customers?.name || 'N/A'}
                   </Text>
+                  <View
+                    style={[
+                      styles.statusBadge,
+                      { backgroundColor: getStatusColor(invoice.status) + '20' },
+                    ]}
+                  >
+                    <Text style={[ios16Typography.caption, { color: getStatusColor(invoice.status) }]}>
+                      {invoice.status.toUpperCase()}
+                    </Text>
+                  </View>
                 </View>
+                <Text style={[ios16Typography.body, styles.invoiceDetail]}>
+                  {formatMonthYear(invoice.month, invoice.year)}
+                </Text>
+                <Text style={[ios16Typography.title2, styles.amount]}>
+                  {formatCurrency(invoice.amount)}
+                </Text>
+                {invoice.payment_date && (
+                  <Text style={[ios16Typography.caption, styles.metaText]}>
+                    Tanggal Bayar: {formatDate(invoice.payment_date)}
+                  </Text>
+                )}
+                {invoice.payment_proof_url && (
+                  <Text style={[ios16Typography.caption, styles.metaText]}>
+                    Bukti: {invoice.payment_proof_url}
+                  </Text>
+                )}
+                {invoice.verified_at && (
+                  <Text style={[ios16Typography.caption, styles.metaText]}>
+                    Diverifikasi: {formatDate(invoice.verified_at)}
+                  </Text>
+                )}
               </View>
-              <Text style={[ios16Typography.body, styles.invoiceDetail]}>
-                {formatMonthYear(invoice.month, invoice.year)}
-              </Text>
-              <Text style={[ios16Typography.title2, styles.amount]}>
-                {formatCurrency(invoice.amount)}
-              </Text>
-              {invoice.payment_date && (
-                <Text style={[ios16Typography.caption, styles.metaText]}>
-                  Tanggal Bayar: {formatDate(invoice.payment_date)}
-                </Text>
+              {invoice.status === 'paid' && (
+                <View style={styles.actions}>
+                  <Button
+                    title="Verifikasi"
+                    onPress={(e) => {
+                      e.stopPropagation();
+                      openVerificationModal(invoice);
+                    }}
+                    style={styles.actionButton}
+                  />
+                  <Button
+                    title="Tolak"
+                    onPress={(e) => {
+                      e.stopPropagation();
+                      handleReject(invoice);
+                    }}
+                    variant="secondary"
+                    style={styles.actionButton}
+                  />
+                </View>
               )}
-              {invoice.payment_proof_url && (
-                <Text style={[ios16Typography.caption, styles.metaText]}>
-                  Bukti: {invoice.payment_proof_url}
-                </Text>
-              )}
-              {invoice.verified_at && (
-                <Text style={[ios16Typography.caption, styles.metaText]}>
-                  Diverifikasi: {formatDate(invoice.verified_at)}
-                </Text>
-              )}
-            </View>
-            {invoice.status === 'paid' && (
-              <View style={styles.actions}>
-                <Button
-                  title="Verifikasi"
-                  onPress={() => openVerificationModal(invoice)}
-                  style={styles.actionButton}
-                />
-                <Button
-                  title="Tolak"
-                  onPress={() => handleReject(invoice)}
-                  variant="secondary"
-                  style={styles.actionButton}
-                />
-              </View>
-            )}
-          </Card>
+            </Card>
+          </Pressable>
         ))}
 
         {invoices.length === 0 && (
@@ -270,6 +329,64 @@ export default function InvoicesScreen() {
             </Card>
           </View>
         </Modal>
+
+        <Modal visible={isStatusModalVisible} animationType="slide" transparent>
+          <View style={styles.modalOverlay}>
+            <Card style={styles.modalContent}>
+              <Text style={[ios16Typography.largeTitle, styles.modalTitle]}>Ubah Status Tagihan</Text>
+              {statusInvoice && (
+                <View style={styles.verificationInfo}>
+                  <Text style={[ios16Typography.body, styles.verificationText]}>
+                    Pelanggan: {statusInvoice.customers?.name}
+                  </Text>
+                  <Text style={[ios16Typography.body, styles.verificationText]}>
+                    Periode: {formatMonthYear(statusInvoice.month, statusInvoice.year)}
+                  </Text>
+                  <Text style={[ios16Typography.body, styles.verificationText]}>
+                    Jumlah: {formatCurrency(statusInvoice.amount)}
+                  </Text>
+                  <View style={styles.currentStatusContainer}>
+                    <Text style={[ios16Typography.body, styles.verificationText]}>
+                      Status Saat Ini:
+                    </Text>
+                    <View
+                      style={[
+                        styles.statusBadgeInline,
+                        { backgroundColor: getStatusColor(statusInvoice.status) + '20' },
+                      ]}
+                    >
+                      <Text style={[ios16Typography.caption, { color: getStatusColor(statusInvoice.status) }]}>
+                        {statusInvoice.status.toUpperCase()}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              )}
+              <View style={styles.statusActions}>
+                <Button
+                  title="Tandai Sebagai Lunas"
+                  onPress={() => handleStatusChange('verified')}
+                  style={[styles.actionButton, styles.lunasButton]}
+                />
+                <Button
+                  title="Tandai Sebagai Belum Lunas"
+                  onPress={() => handleStatusChange('pending')}
+                  variant="secondary"
+                  style={[styles.actionButton, styles.belumLunasButton]}
+                />
+                <Button
+                  title="Batal"
+                  onPress={() => {
+                    setIsStatusModalVisible(false);
+                    setStatusInvoice(null);
+                  }}
+                  variant="secondary"
+                  style={styles.actionButton}
+                />
+              </View>
+            </Card>
+          </View>
+        </Modal>
       </ScrollView>
     </SafeAreaView>
   );
@@ -310,6 +427,12 @@ const styles = StyleSheet.create({
     paddingVertical: ios16Spacing.md,
     color: ios16Palette.textPrimaryLight80,
     fontSize: 11,
+  },
+  invoiceCardPressable: {
+    marginBottom: ios16Spacing.md,
+  },
+  invoiceCardPressed: {
+    opacity: 0.8,
   },
   invoiceCard: {
     gap: ios16Spacing.md,
@@ -372,6 +495,26 @@ const styles = StyleSheet.create({
   },
   verificationText: {
     color: ios16Palette.textPrimaryLight80,
+  },
+  currentStatusContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: ios16Spacing.sm,
+    marginTop: ios16Spacing.xs,
+  },
+  statusBadgeInline: {
+    paddingHorizontal: ios16Spacing.sm,
+    paddingVertical: ios16Spacing.xs,
+    borderRadius: 8,
+  },
+  statusActions: {
+    gap: ios16Spacing.md,
+  },
+  lunasButton: {
+    backgroundColor: '#34C759',
+  },
+  belumLunasButton: {
+    borderColor: '#FF9500',
   },
 });
 
