@@ -37,7 +37,7 @@ type User = {
 };
 
 export default function CustomersScreen() {
-  const { user } = useAuth();
+  const { user, ensureValidSession } = useAuth();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [packages, setPackages] = useState<Package[]>([]);
   const [sales, setSales] = useState<User[]>([]);
@@ -243,6 +243,13 @@ export default function CustomersScreen() {
     }
 
     try {
+      // Pastikan session valid sebelum operasi database
+      const { session: validSession, error: sessionError } = await ensureValidSession();
+      if (sessionError || !validSession) {
+        Alert.alert('Error', 'Session tidak valid. Silakan login ulang.');
+        return;
+      }
+
       const customerData = {
         name: formData.name,
         phone: formData.phone,
@@ -254,23 +261,62 @@ export default function CustomersScreen() {
         status: formData.status,
       };
 
+      // Wrapper untuk operasi database dengan retry jika expired session
+      const performDatabaseOperation = async (operation: () => Promise<any>, retryCount = 0): Promise<any> => {
+        try {
+          return await operation();
+        } catch (error: any) {
+          // Cek apakah error karena expired session
+          const isExpiredSession = 
+            error?.message?.includes('expired') ||
+            error?.message?.includes('Invalid JWT') ||
+            error?.message?.includes('JWT') ||
+            error?.code === 'PGRST301' ||
+            error?.status === 401;
+
+          if (isExpiredSession && retryCount < 1) {
+            // Coba refresh session dan retry sekali
+            console.log('Session expired during operation, refreshing and retrying...');
+            const { session: refreshedSession, error: refreshError } = await ensureValidSession();
+            
+            if (refreshError || !refreshedSession) {
+              throw new Error('Session expired. Silakan login ulang.');
+            }
+
+            // Retry operasi setelah refresh
+            return await performDatabaseOperation(operation, retryCount + 1);
+          }
+          
+          throw error;
+        }
+      };
+
       if (editingCustomer) {
-        const { error } = await supabase
-          .from('customers')
-          .update(customerData)
-          .eq('id', editingCustomer.id);
+        const { error } = await performDatabaseOperation(async () => {
+          return await supabase
+            .from('customers')
+            .update(customerData)
+            .eq('id', editingCustomer.id);
+        });
         if (error) throw error;
       } else {
-        const { error } = await supabase.from('customers').insert(customerData);
+        const { error } = await performDatabaseOperation(async () => {
+          return await supabase.from('customers').insert(customerData);
+        });
         if (error) throw error;
       }
 
       setIsModalVisible(false);
       resetForm();
       await loadData();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving customer:', error);
-      Alert.alert('Error', 'Gagal menyimpan pelanggan');
+      // Cek apakah error terkait dengan expired session
+      if (error?.message?.includes('expired') || error?.message?.includes('Invalid JWT') || error?.status === 401) {
+        Alert.alert('Error', 'Session expired. Silakan login ulang.');
+      } else {
+        Alert.alert('Error', 'Gagal menyimpan pelanggan');
+      }
     }
   };
 
@@ -300,12 +346,54 @@ export default function CustomersScreen() {
           style: 'destructive',
           onPress: async () => {
             try {
-              const { error } = await supabase.from('customers').delete().eq('id', id);
-              if (error) throw error;
-              await loadData();
-            } catch (error) {
+              // Pastikan session valid sebelum operasi database
+              const { session: validSession, error: sessionError } = await ensureValidSession();
+              if (sessionError || !validSession) {
+                Alert.alert('Error', 'Session tidak valid. Silakan login ulang.');
+                return;
+              }
+
+              // Wrapper untuk operasi database dengan retry jika expired session
+              const performDelete = async (retryCount = 0): Promise<void> => {
+                try {
+                  const { error } = await supabase.from('customers').delete().eq('id', id);
+                  if (error) throw error;
+                  await loadData();
+                } catch (error: any) {
+                  // Cek apakah error karena expired session
+                  const isExpiredSession = 
+                    error?.message?.includes('expired') ||
+                    error?.message?.includes('Invalid JWT') ||
+                    error?.message?.includes('JWT') ||
+                    error?.code === 'PGRST301' ||
+                    error?.status === 401;
+
+                  if (isExpiredSession && retryCount < 1) {
+                    // Coba refresh session dan retry sekali
+                    console.log('Session expired during delete, refreshing and retrying...');
+                    const { session: refreshedSession, error: refreshError } = await ensureValidSession();
+                    
+                    if (refreshError || !refreshedSession) {
+                      throw new Error('Session expired. Silakan login ulang.');
+                    }
+
+                    // Retry operasi setelah refresh
+                    return await performDelete(retryCount + 1);
+                  }
+                  
+                  throw error;
+                }
+              };
+
+              await performDelete();
+            } catch (error: any) {
               console.error('Error deleting customer:', error);
-              Alert.alert('Error', 'Gagal menghapus pelanggan');
+              // Cek apakah error terkait dengan expired session
+              if (error?.message?.includes('expired') || error?.message?.includes('Invalid JWT') || error?.status === 401) {
+                Alert.alert('Error', 'Session expired. Silakan login ulang.');
+              } else {
+                Alert.alert('Error', 'Gagal menghapus pelanggan');
+              }
             }
           },
         },

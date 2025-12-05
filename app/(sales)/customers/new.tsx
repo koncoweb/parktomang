@@ -17,7 +17,7 @@ type Package = {
 };
 
 export default function NewCustomerScreen() {
-  const { user } = useAuth();
+  const { user, ensureValidSession } = useAuth();
   const router = useRouter();
   const [packages, setPackages] = useState<Package[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -85,25 +85,68 @@ export default function NewCustomerScreen() {
     setIsLoading(true);
 
     try {
-      const { error } = await supabase.from('customers').insert({
-        name: formData.name,
-        phone: formData.phone,
-        email: formData.email || null,
-        address: formData.address,
-        package_id: formData.package_id,
-        sales_id: user.id,
-        due_date: parseInt(formData.due_date),
-        status: 'active',
-      });
+      // Pastikan session valid sebelum operasi database
+      const { session: validSession, error: sessionError } = await ensureValidSession();
+      if (sessionError || !validSession) {
+        Alert.alert('Error', 'Session tidak valid. Silakan login ulang.');
+        setIsLoading(false);
+        return;
+      }
 
-      if (error) throw error;
+      // Wrapper untuk operasi database dengan retry jika expired session
+      const performInsert = async (retryCount = 0): Promise<void> => {
+        try {
+          const { error } = await supabase.from('customers').insert({
+            name: formData.name,
+            phone: formData.phone,
+            email: formData.email || null,
+            address: formData.address,
+            package_id: formData.package_id,
+            sales_id: user.id,
+            due_date: parseInt(formData.due_date),
+            status: 'active',
+          });
+
+          if (error) throw error;
+        } catch (error: any) {
+          // Cek apakah error karena expired session
+          const isExpiredSession = 
+            error?.message?.includes('expired') ||
+            error?.message?.includes('Invalid JWT') ||
+            error?.message?.includes('JWT') ||
+            error?.code === 'PGRST301' ||
+            error?.status === 401;
+
+          if (isExpiredSession && retryCount < 1) {
+            // Coba refresh session dan retry sekali
+            console.log('Session expired during insert, refreshing and retrying...');
+            const { session: refreshedSession, error: refreshError } = await ensureValidSession();
+            
+            if (refreshError || !refreshedSession) {
+              throw new Error('Session expired. Silakan login ulang.');
+            }
+
+            // Retry operasi setelah refresh
+            return await performInsert(retryCount + 1);
+          }
+          
+          throw error;
+        }
+      };
+
+      await performInsert();
 
       Alert.alert('Berhasil', 'Pelanggan berhasil didaftarkan', [
         { text: 'OK', onPress: () => router.back() },
       ]);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating customer:', error);
-      Alert.alert('Error', 'Gagal mendaftarkan pelanggan');
+      // Cek apakah error terkait dengan expired session
+      if (error?.message?.includes('expired') || error?.message?.includes('Invalid JWT') || error?.status === 401) {
+        Alert.alert('Error', 'Session expired. Silakan login ulang.');
+      } else {
+        Alert.alert('Error', 'Gagal mendaftarkan pelanggan');
+      }
     } finally {
       setIsLoading(false);
     }
