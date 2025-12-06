@@ -95,19 +95,19 @@ export default function NewCustomerScreen() {
 
       // Wrapper untuk operasi database dengan retry jika expired session
       const performInsert = async (retryCount = 0): Promise<void> => {
-        try {
-          const { error } = await supabase.from('customers').insert({
-            name: formData.name,
-            phone: formData.phone,
-            email: formData.email || null,
-            address: formData.address,
-            package_id: formData.package_id,
-            sales_id: user.id,
-            due_date: parseInt(formData.due_date),
-            status: 'active',
-          });
+    try {
+      const { error } = await supabase.from('customers').insert({
+        name: formData.name,
+        phone: formData.phone,
+        email: formData.email || null,
+        address: formData.address,
+        package_id: formData.package_id,
+        sales_id: user.id,
+        due_date: parseInt(formData.due_date),
+        status: 'active',
+      });
 
-          if (error) throw error;
+      if (error) throw error;
         } catch (error: any) {
           // Cek apakah error karena expired session
           const isExpiredSession = 
@@ -145,7 +145,7 @@ export default function NewCustomerScreen() {
       if (error?.message?.includes('expired') || error?.message?.includes('Invalid JWT') || error?.status === 401) {
         Alert.alert('Error', 'Session expired. Silakan login ulang.');
       } else {
-        Alert.alert('Error', 'Gagal mendaftarkan pelanggan');
+      Alert.alert('Error', 'Gagal mendaftarkan pelanggan');
       }
     } finally {
       setIsLoading(false);

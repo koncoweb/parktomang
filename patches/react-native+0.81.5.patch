@@ -1,0 +1,1072 @@
+diff --git a/node_modules/react-native/jest/mock.js b/node_modules/react-native/jest/mock.js
+index 9c3b433..f249bca 100644
+--- a/node_modules/react-native/jest/mock.js
++++ b/node_modules/react-native/jest/mock.js
+@@ -16,10 +16,10 @@
+  * If `factoryRef` is provided, it is expected to reference a module that
+  * exports the same type signature as the module referenced by `moduleRef`.
+  */
+-export default function mock<TModuleRef: $Flow$ModuleRef<mixed>>(
+-  moduleRef: TModuleRef,
+-  factoryRef?: NoInfer<TModuleRef>,
+-): void {
++function mock(
++  moduleRef,
++  factoryRef,
++) {
+   // NOTE: Jest's `babel-plugin-jest-hoist` requires that the second argument to
+   // `jest.mock` be an inline function, so structure this code accordingly.
+   if (factoryRef === undefined) {
+@@ -33,7 +33,10 @@ export default function mock<TModuleRef: $Flow$ModuleRef<mixed>>(
+   }
+ }
+ 
+-function deref(ref: $Flow$ModuleRef<mixed>): string {
++module.exports = mock;
++module.exports.default = mock;
++
++function deref(ref) {
+   // $FlowIgnore[incompatible-cast]
+-  return (ref as string).substring(2);
++  return ref.substring(2);
+ }
+diff --git a/node_modules/react-native/jest/mocks/AccessibilityInfo.js b/node_modules/react-native/jest/mocks/AccessibilityInfo.js
+index 4dc215b..d084a50 100644
+--- a/node_modules/react-native/jest/mocks/AccessibilityInfo.js
++++ b/node_modules/react-native/jest/mocks/AccessibilityInfo.js
+@@ -11,52 +11,35 @@
+ const AccessibilityInfo = {
+   addEventListener: jest.fn(() => ({
+     remove: jest.fn(),
+-  })) as JestMockFn<$FlowFixMe, {remove: JestMockFn<[], void>}>,
+-  announceForAccessibility: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-  announceForAccessibilityWithOptions: jest.fn() as JestMockFn<
+-    $FlowFixMe,
+-    $FlowFixMe,
+-  >,
++  })),
++  announceForAccessibility: jest.fn(),
++  announceForAccessibilityWithOptions: jest.fn(),
+   isAccessibilityServiceEnabled: jest.fn(() =>
+     Promise.resolve(false),
+-  ) as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-  isBoldTextEnabled: jest.fn(() => Promise.resolve(false)) as JestMockFn<
+-    $FlowFixMe,
+-    $FlowFixMe,
+-  >,
+-  isGrayscaleEnabled: jest.fn(() => Promise.resolve(false)) as JestMockFn<
+-    $FlowFixMe,
+-    $FlowFixMe,
+-  >,
+-  isInvertColorsEnabled: jest.fn(() => Promise.resolve(false)) as JestMockFn<
+-    $FlowFixMe,
+-    $FlowFixMe,
+-  >,
+-  isReduceMotionEnabled: jest.fn(() => Promise.resolve(false)) as JestMockFn<
+-    $FlowFixMe,
+-    $FlowFixMe,
+-  >,
++  ),
++  isBoldTextEnabled: jest.fn(() => Promise.resolve(false)),
++  isGrayscaleEnabled: jest.fn(() => Promise.resolve(false)),
++  isInvertColorsEnabled: jest.fn(() => Promise.resolve(false)),
++  isReduceMotionEnabled: jest.fn(() => Promise.resolve(false)),
+   isHighTextContrastEnabled: jest.fn(() =>
+     Promise.resolve(false),
+-  ) as JestMockFn<$FlowFixMe, $FlowFixMe>,
++  ),
+   isDarkerSystemColorsEnabled: jest.fn(() =>
+     Promise.resolve(false),
+-  ) as JestMockFn<$FlowFixMe, $FlowFixMe>,
++  ),
+   prefersCrossFadeTransitions: jest.fn(() =>
+     Promise.resolve(false),
+-  ) as JestMockFn<$FlowFixMe, $FlowFixMe>,
++  ),
+   isReduceTransparencyEnabled: jest.fn(() =>
+     Promise.resolve(false),
+-  ) as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-  isScreenReaderEnabled: jest.fn(() => Promise.resolve(false)) as JestMockFn<
+-    $FlowFixMe,
+-    $FlowFixMe,
+-  >,
+-  setAccessibilityFocus: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-  sendAccessibilityEvent: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
++  ),
++  isScreenReaderEnabled: jest.fn(() => Promise.resolve(false)),
++  setAccessibilityFocus: jest.fn(),
++  sendAccessibilityEvent: jest.fn(),
+   getRecommendedTimeoutMillis: jest.fn(() =>
+     Promise.resolve(false),
+-  ) as JestMockFn<$FlowFixMe, $FlowFixMe>,
++  ),
+ };
+ 
+-export default AccessibilityInfo;
++module.exports = AccessibilityInfo;
++module.exports.default = AccessibilityInfo;
+diff --git a/node_modules/react-native/jest/mocks/ActivityIndicator.js b/node_modules/react-native/jest/mocks/ActivityIndicator.js
+index fb53c59..5d512c4 100644
+--- a/node_modules/react-native/jest/mocks/ActivityIndicator.js
++++ b/node_modules/react-native/jest/mocks/ActivityIndicator.js
+@@ -8,16 +8,17 @@
+  * @format
+  */
+ 
+-import typeof TActivityIndicator from '../../Libraries/Components/ActivityIndicator/ActivityIndicator';
+-import typeof * as TmockComponent from '../mockComponent';
++
++
+ 
+ const mockComponent =
+-  jest.requireActual<TmockComponent>('../mockComponent').default;
++  jest.requireActual('../mockComponent').default;
+ 
+ const ActivityIndicator = mockComponent(
+   '../Libraries/Components/ActivityIndicator/ActivityIndicator',
+   null, // instanceMethods
+   true, // isESModule
+-) as TActivityIndicator;
++);
+ 
+-export default ActivityIndicator;
++module.exports = ActivityIndicator;
++module.exports.default = ActivityIndicator;
+diff --git a/node_modules/react-native/jest/mocks/AppState.js b/node_modules/react-native/jest/mocks/AppState.js
+index 8cb3d6a..6e64c40 100644
+--- a/node_modules/react-native/jest/mocks/AppState.js
++++ b/node_modules/react-native/jest/mocks/AppState.js
+@@ -11,9 +11,10 @@
+ const AppState = {
+   addEventListener: jest.fn(() => ({
+     remove: jest.fn(),
+-  })) as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-  removeEventListener: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-  currentState: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
++  })),
++  removeEventListener: jest.fn(),
++  currentState: jest.fn(),
+ };
+ 
+-export default AppState;
++module.exports = AppState;
++module.exports.default = AppState;
+diff --git a/node_modules/react-native/jest/mocks/Clipboard.js b/node_modules/react-native/jest/mocks/Clipboard.js
+index 035dc07..a935025 100644
+--- a/node_modules/react-native/jest/mocks/Clipboard.js
++++ b/node_modules/react-native/jest/mocks/Clipboard.js
+@@ -9,8 +9,9 @@
+  */
+ 
+ const Clipboard = {
+-  getString: jest.fn(async () => '') as JestMockFn<[], Promise<string>>,
+-  setString: jest.fn() as JestMockFn<[string], void>,
++  getString: jest.fn(async () => '')>,
++  setString: jest.fn(),
+ };
+ 
+-export default Clipboard;
++module.exports = Clipboard;
++module.exports.default = Clipboard;
+diff --git a/node_modules/react-native/jest/mocks/Image.js b/node_modules/react-native/jest/mocks/Image.js
+index 87febdb..549f487 100644
+--- a/node_modules/react-native/jest/mocks/Image.js
++++ b/node_modules/react-native/jest/mocks/Image.js
+@@ -8,16 +8,17 @@
+  * @format
+  */
+ 
+-import typeof TImage from '../../Libraries/Image/Image';
+-import typeof * as TmockComponent from '../mockComponent';
++
++
+ 
+ const mockComponent =
+-  jest.requireActual<TmockComponent>('../mockComponent').default;
++  jest.requireActual('../mockComponent').default;
+ 
+ const Image = mockComponent(
+   '../Libraries/Image/Image',
+   null, // instanceMethods
+   true, // isESModule
+-) as TImage;
++);
+ 
+-export default Image;
++module.exports = Image;
++module.exports.default = Image;
+diff --git a/node_modules/react-native/jest/mocks/Linking.js b/node_modules/react-native/jest/mocks/Linking.js
+index c558c82..eb81bdf 100644
+--- a/node_modules/react-native/jest/mocks/Linking.js
++++ b/node_modules/react-native/jest/mocks/Linking.js
+@@ -9,20 +9,21 @@
+  */
+ 
+ const Linking = {
+-  openURL: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-  canOpenURL: jest.fn(() => Promise.resolve(true)) as JestMockFn<
++  openURL: jest.fn(),
++  canOpenURL: jest.fn(() => Promise.resolve(true))
+     $FlowFixMe,
+     $FlowFixMe,
+   >,
+-  openSettings: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
++  openSettings: jest.fn(),
+   addEventListener: jest.fn(() => ({
+     remove: jest.fn(),
+-  })) as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-  getInitialURL: jest.fn(() => Promise.resolve()) as JestMockFn<
++  })),
++  getInitialURL: jest.fn(() => Promise.resolve())
+     $FlowFixMe,
+     $FlowFixMe,
+   >,
+-  sendIntent: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
++  sendIntent: jest.fn(),
+ };
+ 
+-export default Linking;
++module.exports = Linking;
++module.exports.default = Linking;
+diff --git a/node_modules/react-native/jest/mocks/Modal.js b/node_modules/react-native/jest/mocks/Modal.js
+index c9000e1..718c785 100644
+--- a/node_modules/react-native/jest/mocks/Modal.js
++++ b/node_modules/react-native/jest/mocks/Modal.js
+@@ -8,22 +8,20 @@
+  * @format
+  */
+ 
+-import type {ModalProps} from '../../Libraries/Modal/Modal';
+-import typeof * as TmockComponent from '../mockComponent';
+ 
+-const mockComponent =
+-  jest.requireActual<TmockComponent>('../mockComponent').default;
+ 
+-type TModal = component(...ModalProps);
++
++const mockComponent =
++  jest.requireActual('../mockComponent').default;
+ 
+ const BaseComponent = mockComponent(
+   '../Libraries/Modal/Modal',
+   null, // instanceMethods
+   true, // isESModule
+-) as TModal;
++);
+ 
+ // $FlowIgnore[incompatible-use]
+-export default class Modal extends BaseComponent {
++class Modal extends BaseComponent {
+   render(): React.Node {
+     if (this.props.visible === false) {
+       return null;
+@@ -31,3 +29,6 @@ export default class Modal extends BaseComponent {
+     return <BaseComponent {...this.props}>{this.props.children}</BaseComponent>;
+   }
+ }
++
++module.exports = Modal;
++module.exports.default = Modal;
+diff --git a/node_modules/react-native/jest/mocks/NativeComponentRegistry.js b/node_modules/react-native/jest/mocks/NativeComponentRegistry.js
+index 9efd7f2..2d4b65c 100644
+--- a/node_modules/react-native/jest/mocks/NativeComponentRegistry.js
++++ b/node_modules/react-native/jest/mocks/NativeComponentRegistry.js
+@@ -8,23 +8,31 @@
+  * @format
+  */
+ 
+-import typeof * as TmockNativeComponent from '../mockNativeComponent';
+ 
+-const mockNativeComponent = jest.requireActual<TmockNativeComponent>(
++
++const mockNativeComponent = jest.requireActual(
+   '../mockNativeComponent',
+ ).default;
+ 
+-export const get = jest.fn((name, viewConfigProvider) => {
++const get = jest.fn((name, viewConfigProvider) => {
+   return mockNativeComponent(name);
+-}) as JestMockFn<$FlowFixMe, $FlowFixMe>;
++});
+ 
+-export const getWithFallback_DEPRECATED = jest.fn(
++const getWithFallback_DEPRECATED = jest.fn(
+   (name, viewConfigProvider) => {
+     return mockNativeComponent(name);
+   },
+-) as JestMockFn<$FlowFixMe, $FlowFixMe>;
++);
++
++const setRuntimeConfigProvider = jest.fn();
+ 
+-export const setRuntimeConfigProvider = jest.fn() as JestMockFn<
+-  $FlowFixMe,
+-  $FlowFixMe,
+->;
++module.exports = {
++  get,
++  getWithFallback_DEPRECATED,
++  setRuntimeConfigProvider,
++};
++module.exports.default = {
++  get,
++  getWithFallback_DEPRECATED,
++  setRuntimeConfigProvider,
++};
+diff --git a/node_modules/react-native/jest/mocks/NativeModules.js b/node_modules/react-native/jest/mocks/NativeModules.js
+index a3a358f..75a6fe4 100644
+--- a/node_modules/react-native/jest/mocks/NativeModules.js
++++ b/node_modules/react-native/jest/mocks/NativeModules.js
+@@ -11,30 +11,30 @@
+ // TODO: Split this up into separate files.
+ const NativeModules = {
+   AlertManager: {
+-    alertWithArgs: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
++    alertWithArgs: jest.fn(),
+   },
+   AsyncLocalStorage: {
+     multiGet: jest.fn((keys, callback) =>
+       process.nextTick(() => callback(null, [])),
+-    ) as JestMockFn<$FlowFixMe, $FlowFixMe>,
++    ),
+     multiSet: jest.fn((entries, callback) =>
+       process.nextTick(() => callback(null)),
+-    ) as JestMockFn<$FlowFixMe, $FlowFixMe>,
++    ),
+     multiRemove: jest.fn((keys, callback) =>
+       process.nextTick(() => callback(null)),
+-    ) as JestMockFn<$FlowFixMe, $FlowFixMe>,
++    ),
+     multiMerge: jest.fn((entries, callback) =>
+       process.nextTick(() => callback(null)),
+-    ) as JestMockFn<$FlowFixMe, $FlowFixMe>,
++    ),
+     clear: jest.fn(callback =>
+       process.nextTick(() => callback(null)),
+-    ) as JestMockFn<$FlowFixMe, $FlowFixMe>,
++    ),
+     getAllKeys: jest.fn(callback =>
+       process.nextTick(() => callback(null, [])),
+-    ) as JestMockFn<$FlowFixMe, $FlowFixMe>,
++    ),
+   },
+   DeviceInfo: {
+-    getConstants(): $FlowFixMe {
++    getConstants() {
+       return {
+         Dimensions: {
+           window: {
+@@ -54,77 +54,62 @@ const NativeModules = {
+     },
+   },
+   DevSettings: {
+-    addMenuItem: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    reload: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
++    addMenuItem: jest.fn(),
++    reload: jest.fn(),
+   },
+   ImageLoader: {
+-    getSize: jest.fn(url => Promise.resolve([320, 240])) as JestMockFn<
+-      $FlowFixMe,
+-      $FlowFixMe,
+-    >,
++    getSize: jest.fn(url => Promise.resolve([320, 240])),
+     getSizeWithHeaders: jest.fn((url, headers) =>
+       Promise.resolve({height: 222, width: 333}),
+-    ) as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    prefetchImage: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    prefetchImageWithMetadata: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    queryCache: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
++    ),
++    prefetchImage: jest.fn(),
++    prefetchImageWithMetadata: jest.fn(),
++    queryCache: jest.fn(),
+   },
+   ImageViewManager: {
+     getSize: jest.fn((uri, success) =>
+       process.nextTick(() => success(320, 240)),
+-    ) as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    prefetchImage: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
++    ),
++    prefetchImage: jest.fn(),
+   },
+   KeyboardObserver: {
+-    addListener: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    removeListeners: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
++    addListener: jest.fn(),
++    removeListeners: jest.fn(),
+   },
+   NativeAnimatedModule: {
+-    createAnimatedNode: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    updateAnimatedNodeConfig: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    getValue: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    startListeningToAnimatedNodeValue: jest.fn() as JestMockFn<
+-      $FlowFixMe,
+-      $FlowFixMe,
+-    >,
+-    stopListeningToAnimatedNodeValue: jest.fn() as JestMockFn<
+-      $FlowFixMe,
+-      $FlowFixMe,
+-    >,
+-    connectAnimatedNodes: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    disconnectAnimatedNodes: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
++    createAnimatedNode: jest.fn(),
++    updateAnimatedNodeConfig: jest.fn(),
++    getValue: jest.fn(),
++    startListeningToAnimatedNodeValue: jest.fn(),
++    stopListeningToAnimatedNodeValue: jest.fn(),
++    connectAnimatedNodes: jest.fn(),
++    disconnectAnimatedNodes: jest.fn(),
+     startAnimatingNode: jest.fn((animationId, nodeTag, config, endCallback) => {
+       setTimeout(() => endCallback({finished: true}), 16);
+-    }) as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    stopAnimation: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    setAnimatedNodeValue: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    setAnimatedNodeOffset: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    flattenAnimatedNodeOffset: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    extractAnimatedNodeOffset: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    connectAnimatedNodeToView: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    disconnectAnimatedNodeFromView: jest.fn() as JestMockFn<
+-      $FlowFixMe,
+-      $FlowFixMe,
+-    >,
+-    restoreDefaultValues: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    dropAnimatedNode: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    addAnimatedEventToView: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    removeAnimatedEventFromView: jest.fn() as JestMockFn<
+-      $FlowFixMe,
+-      $FlowFixMe,
+-    >,
+-    addListener: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    removeListener: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    removeListeners: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
++    }),
++    stopAnimation: jest.fn(),
++    setAnimatedNodeValue: jest.fn(),
++    setAnimatedNodeOffset: jest.fn(),
++    flattenAnimatedNodeOffset: jest.fn(),
++    extractAnimatedNodeOffset: jest.fn(),
++    connectAnimatedNodeToView: jest.fn(),
++    disconnectAnimatedNodeFromView: jest.fn(),
++    restoreDefaultValues: jest.fn(),
++    dropAnimatedNode: jest.fn(),
++    addAnimatedEventToView: jest.fn(),
++    removeAnimatedEventFromView: jest.fn(),
++    addListener: jest.fn(),
++    removeListener: jest.fn(),
++    removeListeners: jest.fn(),
+   },
+   Networking: {
+-    sendRequest: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    abortRequest: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    addListener: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    removeListeners: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
++    sendRequest: jest.fn(),
++    abortRequest: jest.fn(),
++    addListener: jest.fn(),
++    removeListeners: jest.fn(),
+   },
+   PlatformConstants: {
+-    getConstants(): $FlowFixMe {
++    getConstants() {
+       return {
+         reactNativeVersion: {
+           major: 1000,
+@@ -136,104 +121,87 @@ const NativeModules = {
+     },
+   },
+   PushNotificationManager: {
+-    presentLocalNotification: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    scheduleLocalNotification: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    cancelAllLocalNotifications: jest.fn() as JestMockFn<
+-      $FlowFixMe,
+-      $FlowFixMe,
+-    >,
+-    removeAllDeliveredNotifications: jest.fn() as JestMockFn<
+-      $FlowFixMe,
+-      $FlowFixMe,
+-    >,
++    presentLocalNotification: jest.fn(),
++    scheduleLocalNotification: jest.fn(),
++    cancelAllLocalNotifications: jest.fn(),
++    removeAllDeliveredNotifications: jest.fn(),
+     getDeliveredNotifications: jest.fn(callback =>
+       process.nextTick(() => []),
+-    ) as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    removeDeliveredNotifications: jest.fn() as JestMockFn<
+-      $FlowFixMe,
+-      $FlowFixMe,
+-    >,
+-    setApplicationIconBadgeNumber: jest.fn() as JestMockFn<
+-      $FlowFixMe,
+-      $FlowFixMe,
+-    >,
++    ),
++    removeDeliveredNotifications: jest.fn(),
++    setApplicationIconBadgeNumber: jest.fn(),
+     getApplicationIconBadgeNumber: jest.fn(callback =>
+       process.nextTick(() => callback(0)),
+-    ) as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    cancelLocalNotifications: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
++    ),
++    cancelLocalNotifications: jest.fn(),
+     getScheduledLocalNotifications: jest.fn(callback =>
+       process.nextTick(() => callback()),
+-    ) as JestMockFn<$FlowFixMe, $FlowFixMe>,
++    ),
+     requestPermissions: jest.fn(() =>
+       Promise.resolve({alert: true, badge: true, sound: true}),
+-    ) as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    abandonPermissions: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
++    ),
++    abandonPermissions: jest.fn(),
+     checkPermissions: jest.fn(callback =>
+       process.nextTick(() => callback({alert: true, badge: true, sound: true})),
+-    ) as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    getInitialNotification: jest.fn(() => Promise.resolve(null)) as JestMockFn<
+-      $FlowFixMe,
+-      $FlowFixMe,
+-    >,
+-    addListener: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    removeListeners: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
++    ),
++    getInitialNotification: jest.fn(() => Promise.resolve(null)),
++    addListener: jest.fn(),
++    removeListeners: jest.fn(),
+   },
+   SourceCode: {
+-    getConstants(): $FlowFixMe {
++    getConstants() {
+       return {
+         scriptURL: null,
+       };
+     },
+   },
+   StatusBarManager: {
+-    setColor: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    setStyle: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    setHidden: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    setNetworkActivityIndicatorVisible: jest.fn() as JestMockFn<
+-      $FlowFixMe,
+-      $FlowFixMe,
+-    >,
+-    setBackgroundColor: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    setTranslucent: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    getConstants: (): $FlowFixMe => ({
++    setColor: jest.fn(),
++    setStyle: jest.fn(),
++    setHidden: jest.fn(),
++    setNetworkActivityIndicatorVisible: jest.fn(),
++    setBackgroundColor: jest.fn(),
++    setTranslucent: jest.fn(),
++    getConstants: () => ({
+       HEIGHT: 42,
+     }),
+   },
+   Timing: {
+-    createTimer: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    deleteTimer: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
++    createTimer: jest.fn(),
++    deleteTimer: jest.fn(),
+   },
+   UIManager: {},
+   BlobModule: {
+-    getConstants: (): $FlowFixMe => ({
++    getConstants: () => ({
+       BLOB_URI_SCHEME: 'content',
+       BLOB_URI_HOST: null,
+     }),
+-    addNetworkingHandler: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    enableBlobSupport: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    disableBlobSupport: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    createFromParts: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    sendBlob: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    release: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
++    addNetworkingHandler: jest.fn(),
++    enableBlobSupport: jest.fn(),
++    disableBlobSupport: jest.fn(),
++    createFromParts: jest.fn(),
++    sendBlob: jest.fn(),
++    release: jest.fn(),
+   },
+   WebSocketModule: {
+-    connect: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    send: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    sendBinary: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    ping: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    close: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    addListener: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    removeListeners: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
++    connect: jest.fn(),
++    send: jest.fn(),
++    sendBinary: jest.fn(),
++    ping: jest.fn(),
++    close: jest.fn(),
++    addListener: jest.fn(),
++    removeListeners: jest.fn(),
+   },
+   I18nManager: {
+-    allowRTL: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    forceRTL: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    swapLeftAndRightInRTL: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-    getConstants: (): $FlowFixMe => ({
++    allowRTL: jest.fn(),
++    forceRTL: jest.fn(),
++    swapLeftAndRightInRTL: jest.fn(),
++    getConstants: () => ({
+       isRTL: false,
+       doLeftAndRightSwapInRTL: true,
+     }),
+   },
+ };
+ 
+-export default NativeModules;
++module.exports = NativeModules;
++module.exports.default = NativeModules;
+diff --git a/node_modules/react-native/jest/mocks/RefreshControl.js b/node_modules/react-native/jest/mocks/RefreshControl.js
+index bdd76ff..45bb310 100644
+--- a/node_modules/react-native/jest/mocks/RefreshControl.js
++++ b/node_modules/react-native/jest/mocks/RefreshControl.js
+@@ -8,20 +8,20 @@
+  * @format
+  */
+ 
+-import type {RefreshControlProps} from '../../Libraries/Components/RefreshControl/RefreshControl';
+-import type {HostComponent} from '../../src/private/types/HostComponent';
+ 
+-import requireNativeComponent from '../../Libraries/ReactNative/requireNativeComponent';
+-import * as React from 'react';
++
++
++const requireNativeComponent = require('../../Libraries/ReactNative/requireNativeComponent');
++const React = require('react');
+ 
+ const RCTRefreshControl: HostComponent<{}> = requireNativeComponent<{}>(
+   'RCTRefreshControl',
+ );
+ 
+-export default class RefreshControlMock extends React.Component<RefreshControlProps> {
++class RefreshControlMock extends React.Component<RefreshControlProps> {
+   static latestRef: ?RefreshControlMock;
+ 
+-  render(): React.Node {
++  render() {
+     return <RCTRefreshControl />;
+   }
+ 
+@@ -29,3 +29,6 @@ export default class RefreshControlMock extends React.Component<RefreshControlPr
+     RefreshControlMock.latestRef = this;
+   }
+ }
++
++module.exports = RefreshControlMock;
++module.exports.default = RefreshControlMock;
+diff --git a/node_modules/react-native/jest/mocks/RendererProxy.js b/node_modules/react-native/jest/mocks/RendererProxy.js
+index ed1246f..1611b77 100644
+--- a/node_modules/react-native/jest/mocks/RendererProxy.js
++++ b/node_modules/react-native/jest/mocks/RendererProxy.js
+@@ -10,7 +10,7 @@
+ 
+ // In tests, we can use the default version without dependency injection.
+ 
+-import typeof * as TRendererImplementation from '../../Libraries/ReactNative/RendererImplementation';
++
+ 
+ const {
+   dispatchCommand,
+@@ -25,11 +25,25 @@ const {
+   sendAccessibilityEvent,
+   unmountComponentAtNodeAndRemoveContainer,
+   unstable_batchedUpdates,
+-} = jest.requireActual<TRendererImplementation>(
++} = jest.requireActual(
+   '../../Libraries/ReactNative/RendererImplementation',
+-) as TRendererImplementation;
++);
+ 
+-export {
++module.exports = {
++  dispatchCommand,
++  findHostInstance_DEPRECATED,
++  findNodeHandle,
++  getNodeFromInternalInstanceHandle,
++  getPublicInstanceFromInternalInstanceHandle,
++  getPublicInstanceFromRootTag,
++  isChildPublicInstance,
++  isProfilingRenderer,
++  renderElement,
++  sendAccessibilityEvent,
++  unmountComponentAtNodeAndRemoveContainer,
++  unstable_batchedUpdates,
++};
++module.exports.default = {
+   dispatchCommand,
+   findHostInstance_DEPRECATED,
+   findNodeHandle,
+diff --git a/node_modules/react-native/jest/mocks/ScrollView.js b/node_modules/react-native/jest/mocks/ScrollView.js
+index 62f50b0..ac76ffa 100644
+--- a/node_modules/react-native/jest/mocks/ScrollView.js
++++ b/node_modules/react-native/jest/mocks/ScrollView.js
+@@ -8,18 +8,18 @@
+  * @format
+  */
+ 
+-import typeof TScrollView from '../../Libraries/Components/ScrollView/ScrollView';
+-import type {ScrollViewNativeProps} from '../../Libraries/Components/ScrollView/ScrollViewNativeComponentType';
+-import typeof * as TmockComponent from '../mockComponent';
+-import typeof * as TMockNativeMethods from '../MockNativeMethods';
+ 
+-import View from '../../Libraries/Components/View/View';
+-import requireNativeComponent from '../../Libraries/ReactNative/requireNativeComponent';
+-import * as React from 'react';
++
++
++
++
++const View = require('../../Libraries/Components/View/View');
++const requireNativeComponent = require('../../Libraries/ReactNative/requireNativeComponent');
++const React = require('react');
+ 
+ const mockComponent =
+-  jest.requireActual<TmockComponent>('../mockComponent').default;
+-const MockNativeMethods = jest.requireActual<TMockNativeMethods>(
++  jest.requireActual('../mockComponent').default;
++const MockNativeMethods = jest.requireActual(
+   '../MockNativeMethods',
+ ).default;
+ 
+@@ -42,12 +42,12 @@ const BaseComponent = mockComponent(
+     scrollResponderScrollNativeHandleToKeyboard: jest.fn(),
+   }, // instanceMethods
+   true, // isESModule
+-) as TScrollView;
++);
+ 
+ // $FlowFixMe[incompatible-extend]
+ // $FlowFixMe[invalid-exported-annotation]
+-export default class ScrollViewMock extends BaseComponent {
+-  render(): React.Node {
++class ScrollViewMock extends BaseComponent {
++  render() {
+     return (
+       <RCTScrollView {...this.props}>
+         {this.props.refreshControl}
+@@ -56,3 +56,6 @@ export default class ScrollViewMock extends BaseComponent {
+     );
+   }
+ }
++
++module.exports = ScrollViewMock;
++module.exports.default = ScrollViewMock;
+diff --git a/node_modules/react-native/jest/mocks/Text.js b/node_modules/react-native/jest/mocks/Text.js
+index 6dfe039..530264c 100644
+--- a/node_modules/react-native/jest/mocks/Text.js
++++ b/node_modules/react-native/jest/mocks/Text.js
+@@ -8,13 +8,13 @@
+  * @format
+  */
+ 
+-import typeof TText from '../../Libraries/Text/Text';
+-import typeof * as TmockComponent from '../mockComponent';
+-import typeof * as TMockNativeMethods from '../MockNativeMethods';
++
++
++
+ 
+ const mockComponent =
+-  jest.requireActual<TmockComponent>('../mockComponent').default;
+-const MockNativeMethods = jest.requireActual<TMockNativeMethods>(
++  jest.requireActual('../mockComponent').default;
++const MockNativeMethods = jest.requireActual(
+   '../MockNativeMethods',
+ ).default;
+ 
+@@ -22,6 +22,7 @@ const Text = mockComponent(
+   '../Libraries/Text/Text',
+   MockNativeMethods, // instanceMethods
+   true, // isESModule
+-) as TText;
++);
+ 
+-export default Text;
++module.exports = Text;
++module.exports.default = Text;
+diff --git a/node_modules/react-native/jest/mocks/TextInput.js b/node_modules/react-native/jest/mocks/TextInput.js
+index f20514a..a5b04c9 100644
+--- a/node_modules/react-native/jest/mocks/TextInput.js
++++ b/node_modules/react-native/jest/mocks/TextInput.js
+@@ -8,13 +8,13 @@
+  * @format
+  */
+ 
+-import typeof TTextInput from '../../Libraries/Components/TextInput/TextInput';
+-import typeof * as TmockComponent from '../mockComponent';
+-import typeof * as TMockNativeMethods from '../MockNativeMethods';
++
++
++
+ 
+ const mockComponent =
+-  jest.requireActual<TmockComponent>('../mockComponent').default;
+-const MockNativeMethods = jest.requireActual<TMockNativeMethods>(
++  jest.requireActual('../mockComponent').default;
++const MockNativeMethods = jest.requireActual(
+   '../MockNativeMethods',
+ ).default;
+ 
+@@ -27,6 +27,7 @@ const TextInput = mockComponent(
+     getNativeRef: jest.fn(),
+   }, // instanceMethods
+   true, // isESModule
+-) as TTextInput;
++);
+ 
+-export default TextInput;
++module.exports = TextInput;
++module.exports.default = TextInput;
+diff --git a/node_modules/react-native/jest/mocks/UIManager.js b/node_modules/react-native/jest/mocks/UIManager.js
+index 601134e..76538b8 100644
+--- a/node_modules/react-native/jest/mocks/UIManager.js
++++ b/node_modules/react-native/jest/mocks/UIManager.js
+@@ -11,16 +11,16 @@
+ const UIManager = {
+   AndroidViewPager: {
+     Commands: {
+-      setPage: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-      setPageWithoutAnimation: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
++      setPage: jest.fn(),
++      setPageWithoutAnimation: jest.fn(),
+     },
+   },
+-  blur: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-  createView: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
++  blur: jest.fn(),
++  createView: jest.fn(),
+   customBubblingEventTypes: {},
+   customDirectEventTypes: {},
+-  dispatchViewManagerCommand: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-  focus: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
++  dispatchViewManagerCommand: jest.fn(),
++  focus: jest.fn(),
+   getViewManagerConfig: jest.fn(name => {
+     if (name === 'AndroidDrawerLayout') {
+       return {
+@@ -31,14 +31,14 @@ const UIManager = {
+         },
+       };
+     }
+-  }) as JestMockFn<[string], $FlowFixMe>,
++  }),
+   hasViewManagerConfig: jest.fn(name => {
+     return name === 'AndroidDrawerLayout';
+-  }) as JestMockFn<[string], boolean>,
+-  measure: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-  manageChildren: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-  setChildren: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-  updateView: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
++  }),
++  measure: jest.fn(),
++  manageChildren: jest.fn(),
++  setChildren: jest.fn(),
++  updateView: jest.fn(),
+   AndroidDrawerLayout: {
+     Constants: {
+       DrawerPosition: {
+@@ -57,4 +57,5 @@ const UIManager = {
+   },
+ };
+ 
+-export default UIManager;
++module.exports = UIManager;
++module.exports.default = UIManager;
+diff --git a/node_modules/react-native/jest/mocks/Vibration.js b/node_modules/react-native/jest/mocks/Vibration.js
+index d68b157..572ec9c 100644
+--- a/node_modules/react-native/jest/mocks/Vibration.js
++++ b/node_modules/react-native/jest/mocks/Vibration.js
+@@ -9,8 +9,9 @@
+  */
+ 
+ const Vibration = {
+-  vibrate: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
+-  cancel: jest.fn() as JestMockFn<$FlowFixMe, $FlowFixMe>,
++  vibrate: jest.fn(),
++  cancel: jest.fn(),
+ };
+ 
+-export default Vibration;
++module.exports = Vibration;
++module.exports.default = Vibration;
+diff --git a/node_modules/react-native/jest/mocks/View.js b/node_modules/react-native/jest/mocks/View.js
+index ea9a181..55234fe 100644
+--- a/node_modules/react-native/jest/mocks/View.js
++++ b/node_modules/react-native/jest/mocks/View.js
+@@ -8,13 +8,13 @@
+  * @format
+  */
+ 
+-import typeof TView from '../../Libraries/Components/View/View';
+-import typeof * as TmockComponent from '../mockComponent';
+-import typeof * as TMockNativeMethods from '../MockNativeMethods';
++
++
++
+ 
+ const mockComponent =
+-  jest.requireActual<TmockComponent>('../mockComponent').default;
+-const MockNativeMethods = jest.requireActual<TMockNativeMethods>(
++  jest.requireActual('../mockComponent').default;
++const MockNativeMethods = jest.requireActual(
+   '../MockNativeMethods',
+ ).default;
+ 
+@@ -22,6 +22,7 @@ const View = mockComponent(
+   '../Libraries/Components/View/View',
+   MockNativeMethods, // instanceMethods
+   true, // isESModule
+-) as TView;
++);
+ 
+-export default View;
++module.exports = View;
++module.exports.default = View;
+diff --git a/node_modules/react-native/jest/mocks/ViewNativeComponent.js b/node_modules/react-native/jest/mocks/ViewNativeComponent.js
+index b1c1a94..8d692db 100644
+--- a/node_modules/react-native/jest/mocks/ViewNativeComponent.js
++++ b/node_modules/react-native/jest/mocks/ViewNativeComponent.js
+@@ -8,16 +8,22 @@
+  * @format
+  */
+ 
+-import type {ViewProps} from '../../Libraries/Components/View/ViewPropTypes';
+ 
+-import * as React from 'react';
+-import {createElement} from 'react';
+ 
+-export default class View extends React.Component<ViewProps> {
+-  render(): React.Node {
++const React = require('react');
++const {createElement} = React;
++
++class View extends React.Component {
++  render() {
+     // $FlowIgnore[not-a-function]
+     return createElement('View', this.props, this.props.children);
+   }
+ }
+ 
+ View.displayName = 'View';
++
++module.exports = View;
++module.exports.default = View;
++
++module.exports = View;
++module.exports.default = View;
+diff --git a/node_modules/react-native/jest/mocks/requireNativeComponent.js b/node_modules/react-native/jest/mocks/requireNativeComponent.js
+index eff40ac..a6519c1 100644
+--- a/node_modules/react-native/jest/mocks/requireNativeComponent.js
++++ b/node_modules/react-native/jest/mocks/requireNativeComponent.js
+@@ -8,15 +8,18 @@
+  * @format
+  */
+ 
+-import type {HostComponent} from '../../src/private/types/HostComponent';
+-import typeof * as TmockNativeComponent from '../mockNativeComponent';
+ 
+-const mockNativeComponent = jest.requireActual<TmockNativeComponent>(
++
++
++const mockNativeComponent = jest.requireActual(
+   '../mockNativeComponent',
+ ).default;
+ 
+-export default function requireNativeComponent<T: {...}>(
+-  uiViewClassName: string,
+-): HostComponent<T> {
+-  return mockNativeComponent<T>(uiViewClassName);
++function requireNativeComponent(
++  uiViewClassName,
++) {
++  return mockNativeComponent(uiViewClassName);
+ }
++
++module.exports = requireNativeComponent;
++module.exports.default = requireNativeComponent;
+diff --git a/node_modules/react-native/jest/mocks/useColorScheme.js b/node_modules/react-native/jest/mocks/useColorScheme.js
+index 557f659..f013962 100644
+--- a/node_modules/react-native/jest/mocks/useColorScheme.js
++++ b/node_modules/react-native/jest/mocks/useColorScheme.js
+@@ -8,11 +8,12 @@
+  * @format
+  */
+ 
+-import type {ColorSchemeName} from '../../Libraries/Utilities/NativeAppearance';
+ 
+-const useColorScheme = jest.fn(() => 'light') as JestMockFn<
++
++const useColorScheme = jest.fn(() => 'light')
+   [],
+   ColorSchemeName,
+ >;
+ 
+-export default useColorScheme;
++module.exports = useColorScheme;
++module.exports.default = useColorScheme;
+diff --git a/node_modules/react-native/jest/setup.js b/node_modules/react-native/jest/setup.js
+index 9af8d76..069b933 100644
+--- a/node_modules/react-native/jest/setup.js
++++ b/node_modules/react-native/jest/setup.js
+@@ -13,9 +13,9 @@ global.IS_REACT_ACT_ENVIRONMENT = true;
+ // mode are no longer supported by React Native.
+ global.IS_REACT_NATIVE_TEST_ENVIRONMENT = true;
+ 
+-import '@react-native/js-polyfills/error-guard';
++// require('@react-native/js-polyfills/error-guard'); // Commented out - using mock instead
+ 
+-import mock from './mock';
++const mock = require('./mock').default || require('./mock');
+ 
+ // $FlowIgnore[cannot-write]
+ Object.defineProperties(global, {
+@@ -28,7 +28,7 @@ Object.defineProperties(global, {
+   cancelAnimationFrame: {
+     configurable: true,
+     enumerable: true,
+-    value(id: TimeoutID): void {
++    value(id) {
+       return clearTimeout(id);
+     },
+     writable: true,
+@@ -51,23 +51,25 @@ Object.defineProperties(global, {
+   regeneratorRuntime: {
+     configurable: true,
+     enumerable: true,
+-    value: jest.requireActual<mixed>('regenerator-runtime/runtime'),
++    value: jest.requireActual('regenerator-runtime/runtime'),
+     writable: true,
+   },
+   requestAnimationFrame: {
+     configurable: true,
+     enumerable: true,
+-    value(callback: number => void): TimeoutID {
++    value(callback) {
+       return setTimeout(() => callback(jest.now()), 0);
+     },
+     writable: true,
+   },
+-  window: {
+-    configurable: true,
+-    enumerable: true,
+-    value: global,
+-    writable: true,
+-  },
++  // window sudah didefinisikan oleh jest-expo setup, jadi kita skip
++  // window: {
++  //   configurable: true,
++  //   enumerable: true,
++  //   get() {
++  //     return global;
++  //   },
++  // },
+ });
+ 
+ // $FlowFixMe[incompatible-call] - `./mocks/AppState` is incomplete.

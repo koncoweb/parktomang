@@ -270,13 +270,29 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   blueButton: {
-    backgroundColor: '#0A84FF',
+    backgroundColor: '#0051D5', // Biru tua
     borderRadius: ios16Radii.chip,
     paddingHorizontal: ios16Spacing.xxl * 2,
     paddingVertical: ios16Spacing.lg,
     minWidth: 200,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(0, 81, 213, 0.2)', // Border subtle
+    ...Platform.select({
+      ios: {
+        shadowColor: '#0051D5',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 6,
+      },
+      web: {
+        boxShadow: '0 4px 8px rgba(0, 81, 213, 0.3)',
+      },
+    }),
   },
   blueButtonText: {
     fontSize: 18,
@@ -344,11 +360,27 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(15, 81, 50, 0.1)',
   },
   primaryButton: {
-    backgroundColor: '#0F5132',
+    backgroundColor: '#0051D5', // Biru tua
     borderRadius: ios16Radii.chip,
     paddingVertical: ios16Spacing.md,
     alignItems: 'center',
     marginTop: ios16Spacing.sm,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 81, 213, 0.2)', // Border subtle
+    ...Platform.select({
+      ios: {
+        shadowColor: '#0051D5',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 6,
+      },
+      web: {
+        boxShadow: '0 4px 8px rgba(0, 81, 213, 0.3)',
+      },
+    }),
   },
   primaryButtonText: {
     fontSize: 12,

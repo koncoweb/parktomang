@@ -1,0 +1,624 @@
+[
+  {
+    "id": "TC001",
+    "title": "Login with Valid Credentials",
+    "description": "Verify that a user can successfully log in with valid credentials using Supabase Auth.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the login page."
+      },
+      {
+        "type": "action",
+        "description": "Enter a valid registered email and correct password."
+      },
+      {
+        "type": "action",
+        "description": "Click the login button."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm that the user is redirected to the appropriate dashboard based on their role."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that the user session is stored and maintained."
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "Login with Invalid Credentials",
+    "description": "Ensure login fails with incorrect email or password and appropriate error messages are displayed.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the login page."
+      },
+      {
+        "type": "action",
+        "description": "Enter an unregistered email or wrong password."
+      },
+      {
+        "type": "action",
+        "description": "Click the login button."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that login is denied."
+      },
+      {
+        "type": "assertion",
+        "description": "Check that an error message indicating invalid credentials is displayed."
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "User Registration with Valid Data",
+    "description": "Validate that a new user can register with valid data and receive the correct role assignment.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the registration page."
+      },
+      {
+        "type": "action",
+        "description": "Fill in valid user information including email, password, and required profile fields."
+      },
+      {
+        "type": "action",
+        "description": "Select or assign the appropriate role if applicable."
+      },
+      {
+        "type": "action",
+        "description": "Submit the registration form."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm registration success and auto-login or redirection to login."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that new user role-based access is enforced."
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "Role-Based Access Control Enforcement",
+    "description": "Ensure users can only access pages and features permitted by their role (owner, admin, sales).",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as an owner user."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify owner can access all areas including user management."
+      },
+      {
+        "type": "action",
+        "description": "Login as an admin user."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify admin can access customer, invoice, and package management but not user management."
+      },
+      {
+        "type": "action",
+        "description": "Login as a sales user."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify sales can add customers and view their commission but cannot access admin or owner-only pages."
+      },
+      {
+        "type": "action",
+        "description": "Attempt to directly navigate to unauthorized routes as each role."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm access is denied or redirected appropriately."
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Customer Management CRUD Operations",
+    "description": "Verify that users with proper roles can create, read, update, and delete customer records with validation.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as admin or owner or sales user."
+      },
+      {
+        "type": "action",
+        "description": "Navigate to the customer management page."
+      },
+      {
+        "type": "action",
+        "description": "Add a new customer with all required valid fields."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm the new customer appears in the customer list."
+      },
+      {
+        "type": "action",
+        "description": "Edit an existing customer record with valid changes."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify changes are reflected in the customer list."
+      },
+      {
+        "type": "action",
+        "description": "Delete a customer record."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the customer is removed from the list."
+      },
+      {
+        "type": "action",
+        "description": "Attempt to create or edit a customer with invalid data (missing required fields or invalid formats)."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm validation errors are displayed and prevent submission."
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "Customer Search and Filter Functionality",
+    "description": "Verify that the customer list can be searched and filtered effectively by various criteria.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the customer list page."
+      },
+      {
+        "type": "action",
+        "description": "Input a search term matching existing customers."
+      },
+      {
+        "type": "assertion",
+        "description": "Validate that only matching customers are shown."
+      },
+      {
+        "type": "action",
+        "description": "Apply filters such as active status, package, or other relevant fields."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm the filtered results are accurate and relevant."
+      },
+      {
+        "type": "action",
+        "description": "Clear search and filters."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm that the full customer list is restored."
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "Invoice Status Transitions and Payment Input",
+    "description": "Validate invoice statuses (pending, paid, verified, overdue) update correctly and payment inputs are processed properly.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Create or view an invoice with status 'pending'."
+      },
+      {
+        "type": "action",
+        "description": "Input a valid payment amount less than or equal to the invoice total."
+      },
+      {
+        "type": "action",
+        "description": "Submit payment."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify invoice status changes to 'paid'."
+      },
+      {
+        "type": "action",
+        "description": "Verify that an admin or owner can verify payment, changing status to 'verified'."
+      },
+      {
+        "type": "action",
+        "description": "Attempt to input invalid payment amounts (e.g., negative, zero, or exceeding invoice total)."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm validation errors appear and payment is not accepted."
+      },
+      {
+        "type": "action",
+        "description": "Check invoices past due date without payment are marked 'overdue' automatically."
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "Automatic Invoice Creation 7 Days Before Due Date",
+    "description": "Verify that invoices are automatically generated for active customers 7 days before their due date.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Identify customers with active subscriptions and upcoming due dates more than 7 days away."
+      },
+      {
+        "type": "action",
+        "description": "Simulate system date reaching 7 days before due date."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that new invoices are generated automatically in the system for those customers."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm invoices have correct amount, due date, and status set to 'pending'."
+      },
+      {
+        "type": "action",
+        "description": "Verify that no invoices are generated prematurely or multiple times for the same period."
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "Package Management CRUD with Validation",
+    "description": "Test full management (add, edit, delete) of internet packages including speed and pricing with correct input validation.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as owner or admin with package management access."
+      },
+      {
+        "type": "action",
+        "description": "Add a new internet package with valid speed and price values."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm the package appears in the package list."
+      },
+      {
+        "type": "action",
+        "description": "Edit package details with valid updates."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated package reflects changes."
+      },
+      {
+        "type": "action",
+        "description": "Delete an existing internet package."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm removal of the package from the list."
+      },
+      {
+        "type": "action",
+        "description": "Attempt to create or edit a package with invalid data (e.g., negative speed or price)."
+      },
+      {
+        "type": "assertion",
+        "description": "Check that validation prevents submission and shows error messages."
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "Commission Calculation and Tracking for Sales",
+    "description": "Verify commissions for sales users are calculated automatically per customer and payments can be tracked accurately.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as sales user."
+      },
+      {
+        "type": "action",
+        "description": "View commission settings and confirm commission rates per customer."
+      },
+      {
+        "type": "action",
+        "description": "Add a new customer and generate commissions accordingly."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm commission amount is calculated correctly based on settings."
+      },
+      {
+        "type": "action",
+        "description": "View commission payment status and attempt to update payment as received."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm commission tracking updates with correct payment status."
+      },
+      {
+        "type": "action",
+        "description": "Login as owner or admin and verify commission settings and reports."
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "Dashboard Displays Accurate Role-Based Statistics",
+    "description": "Verify that dashboards show correct statistics such as total customers, invoices, and revenue tailored for each user role.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as owner user and navigate to dashboard."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify displayed statistics match backend data for customers, invoices, commissions, and revenue."
+      },
+      {
+        "type": "action",
+        "description": "Login as admin user and verify dashboard with appropriate data subset."
+      },
+      {
+        "type": "action",
+        "description": "Login as sales user and verify dashboard shows relevant KPIs (e.g., commissions, customers handled)."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm all data is up to date and visually represented correctly."
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "User Management by Owner",
+    "description": "Test that the owner can create new users with specific roles and modify user roles properly.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as owner and open user management page."
+      },
+      {
+        "type": "action",
+        "description": "Add a new user with role admin or sales with valid input data."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify user is created and appears in the user list with correct role."
+      },
+      {
+        "type": "action",
+        "description": "Edit an existing user’s role."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm role update is reflected and access control changes accordingly."
+      },
+      {
+        "type": "action",
+        "description": "Attempt to create a user with missing or invalid fields."
+      },
+      {
+        "type": "assertion",
+        "description": "Check validation errors prevent submission."
+      }
+    ]
+  },
+  {
+    "id": "TC013",
+    "title": "Date and Currency Format Validation",
+    "description": "Verify all date and currency displays and inputs use Indonesian locale formats consistently.",
+    "category": "functional",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to pages displaying dates and currency (e.g., invoices, packages, payments)."
+      },
+      {
+        "type": "assertion",
+        "description": "Check that dates follow Indonesian format (DD/MM/YYYY or local preferred)."
+      },
+      {
+        "type": "assertion",
+        "description": "Check prices and currency fields display using Indonesian Rupiah formatting (Rp, thousands separators, decimal points)."
+      },
+      {
+        "type": "action",
+        "description": "Input dates and currency values in forms."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify input fields accept correct formats and validation rejects incorrect ones."
+      }
+    ]
+  },
+  {
+    "id": "TC014",
+    "title": "Responsive UI and iOS 16 Design Compliance",
+    "description": "Ensure UI components render consistently and responsively across iOS, Android, and Web platforms in line with iOS 16 design system.",
+    "category": "ui",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Launch the application on iOS device or simulator."
+      },
+      {
+        "type": "assertion",
+        "description": "Check UI elements match iOS 16 style guide including buttons, cards, colors, and fonts."
+      },
+      {
+        "type": "action",
+        "description": "Launch on Android device or emulator."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify layouts adapt properly with no overflow or misaligned elements."
+      },
+      {
+        "type": "action",
+        "description": "Launch on a web browser with varied screen sizes."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm responsive behavior and consistent visual fidelity with mobile platforms."
+      },
+      {
+        "type": "action",
+        "description": "Test navigation and interaction flows for intuitive usage."
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "Routing and Navigation Protection Based on Role",
+    "description": "Validate file-based routing protects pages according to user roles and prevents unauthorized access.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as each user role: owner, admin, sales."
+      },
+      {
+        "type": "action",
+        "description": "Attempt to navigate directly via URL or navigation links to pages exclusive to other roles."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify unauthorized pages are inaccessible and user is redirected or shown an error."
+      },
+      {
+        "type": "action",
+        "description": "Verify that authorized pages open normally for permitted roles."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm that session management persists and revokes access on sign out."
+      }
+    ]
+  },
+  {
+    "id": "TC016",
+    "title": "Sign Out and Session Management",
+    "description": "Ensure user can sign out properly and no protected resources are accessible afterward without login.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as any user."
+      },
+      {
+        "type": "action",
+        "description": "Initiate sign out from the application."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify user is redirected to login page with session cleared."
+      },
+      {
+        "type": "action",
+        "description": "Attempt to access any protected route after sign out."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm access is denied and user remains logged out."
+      }
+    ]
+  },
+  {
+    "id": "TC017",
+    "title": "Error Handling on Network or Server Failure",
+    "description": "Test application behavior and user feedback when backend services or network requests fail.",
+    "category": "error handling",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Simulate backend unavailability or server error during login, data fetch, or submission."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the application shows proper error messages or notifications to users."
+      },
+      {
+        "type": "assertion",
+        "description": "Check that UI remains stable without crashes or infinite loading."
+      },
+      {
+        "type": "action",
+        "description": "Retry the failed operation after restoring network."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm operation completes successfully after retry."
+      }
+    ]
+  },
+  {
+    "id": "TC018",
+    "title": "Cross-Platform Compatibility",
+    "description": "Verify full functionality and feature parity on iOS, Android, and Web platforms.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Perform key flows (login, customer CRUD, invoice management, commission tracking, dashboard viewing) on iOS."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify all functions work as intended with no platform-specific issues."
+      },
+      {
+        "type": "action",
+        "description": "Repeat above flows on Android."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm consistent behavior."
+      },
+      {
+        "type": "action",
+        "description": "Repeat above flows on Web browser across multiple popular browsers."
+      },
+      {
+        "type": "assertion",
+        "description": "Validate UI and functionality consistency."
+      }
+    ]
+  }
+]

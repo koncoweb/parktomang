@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, ActivityIndicator } from 'react-native';
+import { Pressable, StyleSheet, Text, ActivityIndicator, Platform } from 'react-native';
 import { ios16Components, ios16Palette, ios16Typography } from '@/constants/ios16TemplateStyles';
 
 type ButtonProps = {
@@ -46,12 +46,42 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   primaryButton: {
-    backgroundColor: ios16Palette.accentBlue,
+    backgroundColor: '#0051D5', // Biru tua
+    borderWidth: 1,
+    borderColor: 'rgba(0, 81, 213, 0.2)', // Border subtle
+    ...Platform.select({
+      ios: {
+        shadowColor: '#0051D5',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 6,
+      },
+      web: {
+        boxShadow: '0 4px 8px rgba(0, 81, 213, 0.3)',
+      },
+    }),
   },
   secondaryButton: {
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: ios16Palette.accentBlue,
+    borderColor: '#0051D5', // Biru tua untuk border
+    ...Platform.select({
+      ios: {
+        shadowColor: '#0051D5',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 3,
+      },
+      web: {
+        boxShadow: '0 2px 4px rgba(0, 81, 213, 0.15)',
+      },
+    }),
   },
   disabled: {
     opacity: 0.6,
@@ -66,7 +96,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
     lineHeight: 16,
     fontWeight: '500',
-    color: ios16Palette.accentBlue,
+    color: '#0051D5', // Biru tua
   },
   disabledText: {
     opacity: 0.6,

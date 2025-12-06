@@ -3,26 +3,24 @@ import { useState } from 'react';
 import {
     ActivityIndicator,
     Dimensions,
-    ImageBackground,
+    Image,
     KeyboardAvoidingView,
     Platform,
     Pressable,
-    ScrollView,
     StyleSheet,
     Text,
     TextInput,
     View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
-    ios16Components,
     ios16Palette,
     ios16Radii,
     ios16Spacing,
     ios16Typography,
 } from '@/constants/ios16TemplateStyles';
 import { useAuth } from '@/hooks/use-auth';
+import { PageLayout } from '@/components/page-layout';
 
 export default function LoginScreen() {
   const { signIn } = useAuth();
@@ -44,14 +42,19 @@ export default function LoginScreen() {
 
     const { error: signInError } = await signIn({ email, password });
 
-    setIsLoading(false);
-
     if (signInError) {
+      setIsLoading(false);
       setError(signInError.message || 'Gagal masuk. Periksa email dan password Anda.');
-    } else {
-      // Redirect akan dihandle oleh app/index.tsx berdasarkan role
-      router.replace('/');
+      return;
     }
+
+    // Tunggu sebentar untuk memastikan session dan profile sudah di-load
+    // Redirect akan dihandle oleh app/index.tsx berdasarkan role setelah profile ter-load
+    // Jangan langsung redirect, biarkan onAuthStateChange dan app/index.tsx yang handle
+    setTimeout(() => {
+      setIsLoading(false);
+      router.replace('/');
+    }, 500);
   };
 
   const currentDate = new Date();
@@ -62,34 +65,19 @@ export default function LoginScreen() {
   });
 
   return (
-    <View style={styles.container}>
-        <SafeAreaView style={styles.safeArea}>
-          <KeyboardAvoidingView
-            style={styles.keyboard}
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          >
-            {/* Hero Section - Fullscreen */}
-            <ImageBackground
-              source={require('@/assets/images/asro network.webp')}
-              style={styles.heroCard}
-              imageStyle={styles.heroCardImage}
-            >
-              <View style={styles.heroCardOverlay}>
-                <View style={styles.heroHeader}>
-                  <View style={styles.heroContent}>
-                    <Text style={styles.heroTitle}>Selamat Datang</Text>
-                    <Text style={styles.heroSubtitle}>
-                      Sistem Manajemen ASRO network
-                    </Text>
-                  </View>
-                  <View style={styles.avatarPlaceholder} />
-                </View>
-              </View>
-            </ImageBackground>
-
+    <PageLayout showBanner={true}>
+        <KeyboardAvoidingView
+          style={styles.keyboard}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
             {/* Tombol MASUK di tengah */}
             {!showForm && (
               <View style={styles.centerButtonContainer}>
+                <Image
+                  source={require('@/assets/images/logo-removebg-preview.png')}
+                  style={styles.smallLogo}
+                  resizeMode="contain"
+                />
                 <Pressable 
                   style={styles.blueButton}
                   onPress={() => setShowForm(true)}
@@ -109,6 +97,14 @@ export default function LoginScreen() {
                   >
                     <Text style={styles.closeButtonText}>×</Text>
                   </Pressable>
+                  
+                  <View style={styles.logoContainer}>
+                    <Image
+                      source={require('@/assets/images/logo-removebg-preview.png')}
+                      style={styles.logo}
+                      resizeMode="contain"
+                    />
+                  </View>
                   
                   <Text style={styles.formTitle}>Masuk ke Akun</Text>
                 
@@ -170,8 +166,7 @@ export default function LoginScreen() {
               </View>
             )}
           </KeyboardAvoidingView>
-        </SafeAreaView>
-    </View>
+    </PageLayout>
   );
 }
 
@@ -319,15 +314,36 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 10,
+    gap: ios16Spacing.xl,
+  },
+  smallLogo: {
+    width: Dimensions.get('window').height * 0.3,
+    height: Dimensions.get('window').height * 0.3,
   },
   blueButton: {
-    backgroundColor: '#0A84FF',
+    backgroundColor: '#0051D5', // Biru tua
     borderRadius: ios16Radii.chip,
     paddingHorizontal: ios16Spacing.xxl * 2,
     paddingVertical: ios16Spacing.lg,
     minWidth: 200,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(0, 81, 213, 0.2)', // Border subtle
+    ...Platform.select({
+      ios: {
+        shadowColor: '#0051D5',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 6,
+      },
+      web: {
+        boxShadow: '0 4px 8px rgba(0, 81, 213, 0.3)',
+      },
+    }),
   },
   blueButtonText: {
     fontSize: 18,
@@ -341,7 +357,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 20,
@@ -375,11 +391,21 @@ const styles = StyleSheet.create({
     color: '#0F5132',
     lineHeight: 24,
   },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: ios16Spacing.lg,
+    marginTop: ios16Spacing.md,
+  },
+  logo: {
+    width: 120,
+    height: 120,
+  },
   formTitle: {
     fontSize: 15.5,
     fontWeight: '600',
     color: '#0F5132',
     marginBottom: ios16Spacing.sm,
+    textAlign: 'center',
   },
   field: {
     gap: ios16Spacing.xs,
@@ -395,11 +421,27 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(15, 81, 50, 0.1)',
   },
   primaryButton: {
-    backgroundColor: '#0F5132',
+    backgroundColor: '#0051D5', // Biru tua
     borderRadius: ios16Radii.chip,
     paddingVertical: ios16Spacing.md,
     alignItems: 'center',
     marginTop: ios16Spacing.sm,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 81, 213, 0.2)', // Border subtle
+    ...Platform.select({
+      ios: {
+        shadowColor: '#0051D5',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 6,
+      },
+      web: {
+        boxShadow: '0 4px 8px rgba(0, 81, 213, 0.3)',
+      },
+    }),
   },
   primaryButtonText: {
     fontSize: 12,

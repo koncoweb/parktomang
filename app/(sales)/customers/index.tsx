@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View, ActivityIndicator } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link } from 'expo-router';
 import { supabase } from '@/lib/supabase';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ios16Components, ios16Palette, ios16Spacing, ios16Typography } from '@/constants/ios16TemplateStyles';
+import { PageLayout } from '@/components/page-layout';
+import { ios16Palette, ios16Spacing, ios16Typography } from '@/constants/ios16TemplateStyles';
 import { formatDate } from '@/lib/utils/date-utils';
 import { useAuth } from '@/hooks/use-auth';
 
@@ -58,16 +58,16 @@ export default function CustomersScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={[styles.container, ios16Components.screenLight]}>
+      <PageLayout>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={ios16Palette.accentBlue} />
         </View>
-      </SafeAreaView>
+      </PageLayout>
     );
   }
 
   return (
-    <SafeAreaView style={[styles.container, ios16Components.screenLight]}>
+    <PageLayout>
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
           <Text style={ios16Typography.largeTitle}>Pelanggan Saya</Text>
@@ -112,14 +112,11 @@ export default function CustomersScreen() {
           </Card>
         )}
       </ScrollView>
-    </SafeAreaView>
+    </PageLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   scrollView: {
     flex: 1,
   },

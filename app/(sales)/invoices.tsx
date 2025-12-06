@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View, ActivityIndicator, TextInput, Alert, Modal } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '@/lib/supabase';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ios16Components, ios16Palette, ios16Radii, ios16Spacing, ios16Typography } from '@/constants/ios16TemplateStyles';
+import { PageLayout } from '@/components/page-layout';
+import { ios16Palette, ios16Radii, ios16Spacing, ios16Typography } from '@/constants/ios16TemplateStyles';
 import { formatCurrency, formatMonthYear, formatDate } from '@/lib/utils/date-utils';
 import { useAuth } from '@/hooks/use-auth';
 
@@ -129,16 +129,16 @@ export default function InvoicesScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={[styles.container, ios16Components.screenLight]}>
+      <PageLayout>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={ios16Palette.accentBlue} />
         </View>
-      </SafeAreaView>
+      </PageLayout>
     );
   }
 
   return (
-    <SafeAreaView style={[styles.container, ios16Components.screenLight]}>
+    <PageLayout>
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
           <Text style={ios16Typography.largeTitle}>Tagihan Pelanggan</Text>
@@ -254,14 +254,11 @@ export default function InvoicesScreen() {
           </View>
         </Modal>
       </ScrollView>
-    </SafeAreaView>
+    </PageLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   scrollView: {
     flex: 1,
   },

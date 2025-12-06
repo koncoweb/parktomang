@@ -76,61 +76,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       console.log('Attempting to refresh session...');
       
-      // Cek dulu apakah ada session di storage
-      // Supabase akan otomatis membaca dari storage adapter yang sudah dikonfigurasi
-      const { data: { session: currentSession }, error: getSessionError } = await supabase.auth.getSession();
+      // Langsung coba refresh - Supabase akan otomatis membaca refresh token dari storage adapter
+      // Ini lebih reliable karena langsung membaca dari storage, bukan dari memory
+      const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession();
       
-      if (getSessionError) {
-        console.error('Error getting session before refresh:', getSessionError);
-      }
-      
-      // Jika tidak ada session, coba refresh langsung
-      // Supabase akan otomatis menggunakan refresh token dari storage adapter jika ada
-      if (!currentSession) {
-        console.log('No current session, attempting refresh from storage...');
-        // Coba refresh - Supabase akan otomatis membaca refresh token dari storage adapter
-        const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession();
+      if (refreshError) {
+        console.error('Error refreshing session:', refreshError);
         
-        if (refreshError) {
-          console.error('Error refreshing session (no current session):', refreshError);
-          // Jika refresh gagal, berarti tidak ada refresh token yang valid
-          return { session: null, error: refreshError };
+        // Jika refresh gagal, coba baca session dari storage sekali lagi
+        const { data: { session: fallbackSession }, error: getSessionError } = await supabase.auth.getSession();
+        
+        if (getSessionError) {
+          console.error('Error getting session after refresh failure:', getSessionError);
         }
         
-        if (refreshedSession) {
-          console.log('Session refreshed from storage successfully');
-          setSession(refreshedSession);
-          setUser(refreshedSession.user ?? null);
-          if (refreshedSession.user) {
-            await fetchProfile(refreshedSession.user.id);
+        // Jika ada fallback session, gunakan itu
+        if (fallbackSession) {
+          console.log('Using fallback session from storage');
+          setSession(fallbackSession);
+          setUser(fallbackSession.user ?? null);
+          if (fallbackSession.user) {
+            await fetchProfile(fallbackSession.user.id);
           }
-          return { session: refreshedSession, error: null };
+          return { session: fallbackSession, error: null };
         }
         
-        // Tidak ada session dan tidak bisa refresh
-        console.log('No session found and cannot refresh');
-        return { session: null, error: new Error('No session to refresh') };
-      }
-
-      // Ada session, coba refresh
-      const { data: { session: refreshedSession }, error } = await supabase.auth.refreshSession();
-      
-      if (error) {
-        console.error('Error refreshing session:', error);
         // Jika refresh gagal karena token expired atau invalid, clear session
         if (
-          error.message?.includes('expired') || 
-          error.message?.includes('Invalid') ||
-          error.message?.includes('refresh_token_not_found') ||
-          error.message?.includes('JWT') ||
-          error.message?.includes('token')
+          refreshError.message?.includes('expired') || 
+          refreshError.message?.includes('Invalid') ||
+          refreshError.message?.includes('refresh_token_not_found') ||
+          refreshError.message?.includes('JWT') ||
+          refreshError.message?.includes('token') ||
+          refreshError.message?.includes('not found')
         ) {
-          console.log('Session expired, clearing...');
+          console.log('Session expired or refresh token not found, clearing...');
           setSession(null);
           setUser(null);
           setProfile(null);
         }
-        return { session: null, error };
+        return { session: null, error: refreshError };
       }
 
       if (refreshedSession) {
@@ -143,16 +128,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { session: refreshedSession, error: null };
       }
 
-      // Jika tidak ada session setelah refresh, tapi sebelumnya ada, berarti expired
-      if (currentSession && !refreshedSession) {
-        console.log('Session expired after refresh attempt');
-        setSession(null);
-        setUser(null);
-        setProfile(null);
-        return { session: null, error: new Error('Session expired') };
+      // Jika tidak ada session setelah refresh, coba baca dari storage sekali lagi
+      console.log('No session after refresh, checking storage...');
+      const { data: { session: storageSession }, error: getSessionError } = await supabase.auth.getSession();
+      
+      if (getSessionError) {
+        console.error('Error getting session from storage:', getSessionError);
+      }
+      
+      if (storageSession) {
+        console.log('Found session in storage');
+        setSession(storageSession);
+        setUser(storageSession.user ?? null);
+        if (storageSession.user) {
+          await fetchProfile(storageSession.user.id);
+        }
+        return { session: storageSession, error: null };
       }
 
-      return { session: refreshedSession, error: null };
+      // Tidak ada session sama sekali
+      console.log('No session found in storage');
+      setSession(null);
+      setUser(null);
+      setProfile(null);
+      return { session: null, error: new Error('No session to refresh') };
     } catch (error) {
       console.error('Error in refreshSession:', error);
       return { session: null, error };
@@ -162,18 +161,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Fungsi untuk memastikan session valid sebelum operasi database
   const ensureValidSession = useCallback(async () => {
     try {
-      // Cek session saat ini
+      // Selalu baca session langsung dari storage untuk memastikan sinkronisasi
+      // getSession() akan membaca dari storage adapter yang sudah dikonfigurasi
       const { data: { session: currentSession }, error: getSessionError } = await supabase.auth.getSession();
       
       if (getSessionError) {
         console.error('Error getting session:', getSessionError);
-        // Coba refresh
+        // Coba refresh sebagai fallback
         return await refreshSession();
       }
 
       if (!currentSession) {
-        // Tidak ada session, coba refresh dulu (mungkin masih ada refresh token)
-        console.log('No current session, attempting refresh...');
+        // Tidak ada session, coba refresh dulu (mungkin masih ada refresh token di storage)
+        console.log('No current session, attempting refresh from storage...');
         const refreshResult = await refreshSession();
         if (refreshResult.session) {
           return refreshResult;
@@ -182,24 +182,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { session: null, error: new Error('No active session') };
       }
 
-      // Cek apakah session expired (dengan margin 10 menit untuk lebih aman)
+      // Cek apakah session expired (dengan margin 5 menit untuk lebih aman)
       const expiresAt = currentSession.expires_at;
       if (expiresAt) {
         const expiresIn = expiresAt - Math.floor(Date.now() / 1000);
-        // Jika token akan expired dalam 10 menit atau sudah expired, refresh
-        if (expiresIn < 600) {
+        // Jika token akan expired dalam 5 menit atau sudah expired, refresh
+        if (expiresIn < 300) {
           console.log(`Session expiring soon (${expiresIn}s), refreshing...`);
           const refreshResult = await refreshSession();
           if (refreshResult.session) {
             return refreshResult;
           }
-          // Jika refresh gagal, gunakan session yang ada (mungkin masih valid)
-          console.warn('Refresh failed, using current session');
+          // Jika refresh gagal tapi masih ada waktu, gunakan session yang ada
+          if (expiresIn > 0) {
+            console.warn('Refresh failed but session still valid, using current session');
+            // Update state untuk memastikan sinkronisasi
+            if (currentSession.access_token !== session?.access_token) {
+              setSession(currentSession);
+              setUser(currentSession.user ?? null);
+              if (currentSession.user) {
+                await fetchProfile(currentSession.user.id);
+              }
+            }
+            return { session: currentSession, error: null };
+          }
+          // Session sudah expired
+          return { session: null, error: new Error('Session expired') };
         }
       }
 
-      // Session masih valid, update state jika berbeda
-      if (currentSession.access_token !== session?.access_token) {
+      // Session masih valid, update state jika berbeda untuk memastikan sinkronisasi
+      if (!session || currentSession.access_token !== session.access_token) {
+        console.log('Updating session state from storage');
         setSession(currentSession);
         setUser(currentSession.user ?? null);
         if (currentSession.user) {
@@ -264,7 +278,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.log('Initializing session...');
         const { data: { session }, error } = await supabase.auth.getSession();
         
-        if (!mounted) return;
+      if (!mounted) return;
         
         if (error) {
           console.error('Error getting initial session:', error);
@@ -311,7 +325,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           if (session.user) {
             await loadProfile(session.user.id);
           }
-        } else {
+      } else {
           // Tidak ada session, cek apakah ada refresh token di storage
           // Supabase akan otomatis menggunakan storage adapter yang sudah dikonfigurasi
           // Coba refresh session - ini akan membaca dari storage adapter (localStorage untuk web, AsyncStorage untuk mobile)
@@ -425,7 +439,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       if (error) {
         console.error('Sign in error:', error);
-        return { error };
+      return { error };
       }
       
       if (data.session) {
@@ -435,7 +449,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(data.session);
         setUser(data.user ?? null);
         if (data.user) {
+          console.log('Loading profile for user:', data.user.id);
           await fetchProfile(data.user.id);
+          console.log('Profile loaded after sign in');
         }
       }
       
@@ -518,32 +534,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [user, fetchProfile]);
 
-  // Handler untuk visibility change (hanya di web)
+  // Handler untuk visibility change dan auto-refresh untuk web
   useEffect(() => {
     // Hanya jalankan di web browser
     if (Platform.OS !== 'web' || typeof window === 'undefined' || typeof document === 'undefined') {
       return;
     }
 
+    // Start auto-refresh untuk web saat component mount
+    console.log('Starting auto-refresh for web...');
+    supabase.auth.startAutoRefresh();
+
     let isRefreshing = false;
     let lastVisibilityChange = 0;
+    let visibilityCheckInterval: NodeJS.Timeout | null = null;
+    let lastSessionCheck = 0;
 
     const handleVisibilityChange = async () => {
       // Jika tab menjadi visible
       if (!document.hidden) {
-        // Throttle: hanya refresh jika lebih dari 1 detik sejak perubahan terakhir
+        // Throttle: hanya refresh jika lebih dari 2 detik sejak perubahan terakhir
         const now = Date.now();
-        if (now - lastVisibilityChange < 1000) {
+        if (now - lastVisibilityChange < 2000) {
           return;
         }
         lastVisibilityChange = now;
+
+        // Jangan refresh jika baru saja ada perubahan session (misalnya baru login)
+        // Tunggu minimal 3 detik setelah perubahan terakhir
+        if (now - lastSessionCheck < 3000) {
+          console.log('Skipping visibility refresh - recent session change');
+          return;
+        }
 
         if (!isRefreshing) {
           isRefreshing = true;
           try {
             console.log('Tab became visible, checking session...');
-            // Selalu cek dan refresh session saat tab kembali aktif
-            // Pastikan session state sinkron dengan storage
+            // Pastikan auto-refresh aktif
+            supabase.auth.startAutoRefresh();
+            
+            // Gunakan ensureValidSession yang lebih gentle daripada refreshSession
+            // Ini hanya akan refresh jika session akan expired, tidak force refresh
             if (ensureValidSessionRef.current) {
               await ensureValidSessionRef.current();
             }
@@ -553,15 +585,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             isRefreshing = false;
           }
         }
+      } else {
+        // Tab menjadi hidden - tetap biarkan auto-refresh berjalan
+        console.log('Tab hidden, auto-refresh continues in background');
       }
     };
 
-    // Juga handle focus event sebagai backup
+    // Juga handle focus event sebagai backup (tapi lebih gentle)
     const handleFocus = async () => {
+      const now = Date.now();
+      // Jangan refresh jika baru saja ada perubahan session
+      if (now - lastSessionCheck < 3000) {
+        console.log('Skipping focus refresh - recent session change');
+        return;
+      }
+
       if (!isRefreshing) {
         isRefreshing = true;
         try {
           console.log('Window focused, checking session...');
+          // Pastikan auto-refresh aktif
+          supabase.auth.startAutoRefresh();
+          
+          // Gunakan ensureValidSession yang lebih gentle
           if (ensureValidSessionRef.current) {
             await ensureValidSessionRef.current();
           }
@@ -573,15 +619,54 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     };
 
+    // Periodic check untuk memastikan session tetap valid (setiap 5 menit)
+    // Ini sebagai backup jika visibility change tidak terdeteksi
+    const startPeriodicCheck = () => {
+      if (visibilityCheckInterval) {
+        clearInterval(visibilityCheckInterval);
+      }
+      
+      visibilityCheckInterval = setInterval(async () => {
+        if (!document.hidden && !isRefreshing) {
+          try {
+            console.log('Periodic session check...');
+            if (ensureValidSessionRef.current) {
+              await ensureValidSessionRef.current();
+            }
+          } catch (error) {
+            console.error('Error in periodic session check:', error);
+          }
+        }
+      }, 5 * 60 * 1000); // 5 menit
+    };
+
+    // Track session changes untuk menghindari refresh yang terlalu sering
+    const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'SIGNED_OUT') {
+        lastSessionCheck = Date.now();
+      }
+    });
+
+    // Start periodic check
+    startPeriodicCheck();
+
+    // Event listeners
     document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('focus', handleFocus);
 
     return () => {
+      // Cleanup
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('focus', handleFocus);
+      if (visibilityCheckInterval) {
+        clearInterval(visibilityCheckInterval);
+      }
+      authSubscription.unsubscribe();
+      // Jangan stop auto-refresh saat unmount karena mungkin masih ada tab lain
+      // Supabase akan handle cleanup sendiri
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // ensureValidSession akan selalu menggunakan versi terbaru karena closure
+  }, []); // Removed refreshSession dependency to avoid re-running
 
   const createUserAsAdmin = useCallback(async (payload: { email: string; password: string; fullName: string; role: UserRole }) => {
     try {

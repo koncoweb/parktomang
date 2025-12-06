@@ -1,0 +1,18 @@
+{
+  "status": "cancelled",
+  "type": "frontend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:8081",
+  "loginUser": "ownerasro@email.com",
+  "loginPassword": "owner123#Asro",
+  "executionArgs": {
+    "projectName": "networkasro",
+    "projectPath": "D:\\koncoweb\\projek\\networkasro",
+    "testIds": [],
+    "additionalInstruction": "",
+    "envs": {
+      "API_KEY": "sk-user-IKVXGyeqttcLkVnWBZhJmAdXultro-QcOJETK86eRkhlkiqbD8NcelApXY5kgjTpW1iWo9JAi2zNn4H1IpSs5oXY5mlLGDvzQZ0G-GklUKFkiXTs7KQ-juvt8-dTzk9tZZU"
+    }
+  },
+  "proxy": "http://2a3f47ef-e85d-428f-9240-a3f8780b3c87:kqzAs9B2cdotXxoGQSSbvNNdF8HEFukU@tun.testsprite.com:8080"
+}

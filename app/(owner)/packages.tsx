@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View, ActivityIndicator, TextInput, Alert, Modal } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '@/lib/supabase';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Header } from '@/components/header';
-import { ios16Components, ios16Palette, ios16Radii, ios16Spacing, ios16Typography } from '@/constants/ios16TemplateStyles';
+import { PageLayout } from '@/components/page-layout';
+import { ios16Palette, ios16Radii, ios16Spacing, ios16Typography } from '@/constants/ios16TemplateStyles';
 import { formatCurrency } from '@/lib/utils/date-utils';
 
 type Package = {
@@ -135,16 +135,16 @@ export default function PackagesScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={[styles.container, ios16Components.screenLight]}>
+      <PageLayout>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={ios16Palette.accentBlue} />
         </View>
-      </SafeAreaView>
+      </PageLayout>
     );
   }
 
   return (
-    <SafeAreaView style={[styles.container, ios16Components.screenLight]}>
+    <PageLayout>
       <Header title="Manajemen Paket" />
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         <Button
@@ -261,14 +261,11 @@ export default function PackagesScreen() {
           </View>
         </Modal>
       </ScrollView>
-    </SafeAreaView>
+    </PageLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   scrollView: {
     flex: 1,
   },

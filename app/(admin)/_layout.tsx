@@ -85,6 +85,12 @@ export default function AdminLayout() {
           ),
         }} 
       />
+      <Tabs.Screen 
+        name="index" 
+        options={{ 
+          href: null, // Sembunyikan dari tab bar
+        }} 
+      />
     </Tabs>
   );
 }

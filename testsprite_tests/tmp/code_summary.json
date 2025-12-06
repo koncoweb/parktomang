@@ -1,0 +1,120 @@
+{
+  "tech_stack": [
+    "TypeScript",
+    "React Native",
+    "Expo",
+    "Expo Router",
+    "Supabase",
+    "React Navigation",
+    "Jest",
+    "React Testing Library"
+  ],
+  "features": [
+    {
+      "name": "Authentication System",
+      "description": "Sistem autentikasi lengkap dengan login, register, sign out, dan session management menggunakan Supabase Auth",
+      "files": [
+        "app/login.tsx",
+        "app/register.tsx",
+        "hooks/use-auth.tsx",
+        "lib/supabase.ts",
+        "lib/storage-adapter.ts"
+      ]
+    },
+    {
+      "name": "Multi-Role Access Control",
+      "description": "Sistem role-based access control dengan tiga role: owner, admin, dan sales. Setiap role memiliki akses dan fitur berbeda",
+      "files": [
+        "lib/utils/role-check.ts",
+        "app/(owner)/_layout.tsx",
+        "app/(admin)/_layout.tsx",
+        "app/(sales)/_layout.tsx",
+        "app/index.tsx"
+      ]
+    },
+    {
+      "name": "Customer Management",
+      "description": "Manajemen pelanggan dengan CRUD operations, filter, dan pencarian. Tersedia untuk admin, owner, dan sales",
+      "files": [
+        "app/(admin)/customers.tsx",
+        "app/(owner)/customers.tsx",
+        "app/(sales)/customers/index.tsx",
+        "app/(sales)/customers/new.tsx"
+      ]
+    },
+    {
+      "name": "Invoice Management",
+      "description": "Sistem manajemen tagihan dengan status tracking (pending, paid, verified, overdue) dan pembayaran",
+      "files": [
+        "app/(admin)/invoices.tsx",
+        "app/(owner)/invoices.tsx",
+        "app/(sales)/invoices.tsx"
+      ]
+    },
+    {
+      "name": "Package Management",
+      "description": "Manajemen paket internet dengan konfigurasi kecepatan dan harga bulanan",
+      "files": [
+        "app/(admin)/packages.tsx",
+        "app/(owner)/packages.tsx"
+      ]
+    },
+    {
+      "name": "Commission System",
+      "description": "Sistem komisi untuk sales dengan pengaturan komisi per pelanggan dan tracking pembayaran",
+      "files": [
+        "app/(admin)/commissions.tsx",
+        "app/(admin)/commission-settings.tsx",
+        "app/(owner)/commissions.tsx",
+        "app/(owner)/commission-settings.tsx",
+        "app/(sales)/commissions.tsx"
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "description": "Dashboard dengan statistik untuk setiap role (owner, admin, sales) menampilkan total pelanggan, tagihan, dan revenue",
+      "files": [
+        "app/(owner)/dashboard.tsx",
+        "app/(admin)/dashboard.tsx",
+        "app/(sales)/dashboard.tsx"
+      ]
+    },
+    {
+      "name": "User Management",
+      "description": "Manajemen user untuk owner, termasuk pembuatan user baru dengan role tertentu",
+      "files": [
+        "app/(owner)/users.tsx"
+      ]
+    },
+    {
+      "name": "Date and Currency Utilities",
+      "description": "Utility functions untuk format tanggal, waktu, dan mata uang dalam format Indonesia",
+      "files": [
+        "lib/utils/date-utils.ts"
+      ]
+    },
+    {
+      "name": "UI Components",
+      "description": "Komponen UI reusable dengan design system iOS 16 style",
+      "files": [
+        "components/ui/button.tsx",
+        "components/ui/card.tsx",
+        "components/ui/collapsible.tsx",
+        "components/header.tsx",
+        "components/page-layout.tsx",
+        "constants/ios16TemplateStyles.ts"
+      ]
+    },
+    {
+      "name": "Routing and Navigation",
+      "description": "File-based routing dengan Expo Router dan protected routes berdasarkan role",
+      "files": [
+        "app/_layout.tsx",
+        "app/(tabs)/_layout.tsx",
+        "app/(tabs)/index.tsx",
+        "app/(tabs)/explore.tsx"
+      ]
+    }
+  ]
+}
+

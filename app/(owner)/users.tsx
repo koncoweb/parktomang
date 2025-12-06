@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View, ActivityIndicator, Pressable, Alert, TextInput, Modal, KeyboardAvoidingView, Platform } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '@/lib/supabase';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Header } from '@/components/header';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { ios16Components, ios16Palette, ios16Spacing, ios16Typography, ios16Radii } from '@/constants/ios16TemplateStyles';
+import { PageLayout } from '@/components/page-layout';
+import { ios16Palette, ios16Spacing, ios16Typography, ios16Radii } from '@/constants/ios16TemplateStyles';
 import { formatDate } from '@/lib/utils/date-utils';
 import { useAuth } from '@/hooks/use-auth';
 import type { UserRole } from '@/lib/utils/role-check';
@@ -151,16 +151,16 @@ export default function UsersScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={[styles.container, ios16Components.screenLight]}>
+      <PageLayout>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={ios16Palette.accentBlue} />
         </View>
-      </SafeAreaView>
+      </PageLayout>
     );
   }
 
   return (
-    <SafeAreaView style={[styles.container, ios16Components.screenLight]}>
+    <PageLayout>
       <Header title="Manajemen Pengguna" />
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         <Button
@@ -344,14 +344,11 @@ export default function UsersScreen() {
           </View>
         </KeyboardAvoidingView>
       </Modal>
-    </SafeAreaView>
+    </PageLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   scrollView: {
     flex: 1,
   },

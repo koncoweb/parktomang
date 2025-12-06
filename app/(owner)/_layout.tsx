@@ -94,6 +94,12 @@ export default function OwnerLayout() {
           ),
         }} 
       />
+      <Tabs.Screen 
+        name="index" 
+        options={{ 
+          href: null, // Sembunyikan dari tab bar
+        }} 
+      />
     </Tabs>
   );
 }

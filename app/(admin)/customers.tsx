@@ -1,11 +1,11 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { ScrollView, StyleSheet, Text, View, ActivityIndicator, TextInput, Alert, Modal, Pressable } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '@/lib/supabase';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Header } from '@/components/header';
-import { ios16Components, ios16Palette, ios16Radii, ios16Spacing, ios16Typography } from '@/constants/ios16TemplateStyles';
+import { PageLayout } from '@/components/page-layout';
+import { ios16Palette, ios16Radii, ios16Spacing, ios16Typography } from '@/constants/ios16TemplateStyles';
 import { formatDate } from '@/lib/utils/date-utils';
 import { useAuth } from '@/hooks/use-auth';
 
@@ -417,16 +417,16 @@ export default function CustomersScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={[styles.container, ios16Components.screenLight]}>
+      <PageLayout>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={ios16Palette.accentBlue} />
         </View>
-      </SafeAreaView>
+      </PageLayout>
     );
   }
 
   return (
-    <SafeAreaView style={[styles.container, ios16Components.screenLight]}>
+    <PageLayout>
       <Header title="Manajemen Pelanggan" />
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         <Button
@@ -661,14 +661,11 @@ export default function CustomersScreen() {
           </View>
         </Modal>
       </ScrollView>
-    </SafeAreaView>
+    </PageLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   scrollView: {
     flex: 1,
   },

@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View, ActivityIndicator } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { StyleSheet, Text, View, ActivityIndicator } from 'react-native';
 import { supabase } from '@/lib/supabase';
 import { Card } from '@/components/ui/card';
 import { Header } from '@/components/header';
-import { ios16Components, ios16Palette, ios16Spacing, ios16Typography } from '@/constants/ios16TemplateStyles';
+import { PageLayout } from '@/components/page-layout';
+import { ios16Palette, ios16Spacing, ios16Typography } from '@/constants/ios16TemplateStyles';
 import { formatCurrency, getCurrentMonthYear } from '@/lib/utils/date-utils';
 import { useAuth } from '@/hooks/use-auth';
 
@@ -83,21 +83,21 @@ export default function SalesDashboard() {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={[styles.container, ios16Components.screenLight]}>
+      <PageLayout>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={ios16Palette.accentBlue} />
         </View>
-      </SafeAreaView>
+      </PageLayout>
     );
   }
 
   return (
-    <SafeAreaView style={[styles.container, ios16Components.screenLight]}>
+    <PageLayout>
       <Header 
         title="Dashboard Sales" 
         subtitle={`Selamat datang, ${profile?.full_name || 'Sales'}`}
       />
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+      <View style={styles.scrollContent}>
 
         <View style={styles.statsGrid}>
           <Card style={styles.statCard}>
@@ -120,18 +120,12 @@ export default function SalesDashboard() {
             <Text style={[ios16Typography.caption, styles.statLabel]}>Tagihan Pending</Text>
           </Card>
         </View>
-      </ScrollView>
-    </SafeAreaView>
+      </View>
+    </PageLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
   scrollContent: {
     padding: ios16Spacing.lg,
     gap: ios16Spacing.xl,
